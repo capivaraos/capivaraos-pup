@@ -1,5 +1,5 @@
 #!/bin/bash
-# Build completo do CapivaraOS Pup (Fedora 44 Xfce): instala dependências,
+# Build completo do CapivaraOS Pup (Fedora 45 Xfce): instala dependências,
 # gera o RPM capivaraos-branding, monta um repositório local com ele e
 # constrói a ISO live com livemedia-creator.
 #
@@ -16,7 +16,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR=/var/tmp/capivaraos-pup-repo
 RESULT_DIR=/var/tmp/capivaraos-pup-result
-ISO_NAME=CapivaraOS-Pup-1.1.8-x86_64.iso
+ISO_NAME=CapivaraOS-Pup-2.0.0-alpha1-x86_64.iso
 
 echo "==> 1/4: Instalando dependências (lorax, rpm-build, ImageMagick, git, createrepo_c)..."
 sudo dnf install -y lorax rpm-build ImageMagick git createrepo_c
@@ -59,8 +59,8 @@ sudo livemedia-creator --ks="$FLAT_KS" \
     --logfile="$LIVEMEDIA_LOG" \
     --project="CapivaraOS Pup" --make-iso --iso-only \
     --iso-name="$ISO_NAME" \
-    --volid="CapivaraOS Pup 1.1.8" --variant="CapivaraOS Pup" \
-    --releasever=44
+    --volid="CapivaraOS Pup 2.0.0 alpha1" --variant="CapivaraOS Pup" \
+    --releasever=45
 
 # ── Trava contra ISO sem os updates do Fedora (BUG-29) ─────────────────────
 # As ISOs 1.1.2/1.1.3 da spin Marsh saíram só com o Fedora 44 GA porque o repo
@@ -77,11 +77,11 @@ _TMPREPO=$(mktemp -d)
 cat > "$_TMPREPO/ucheck.repo" <<EOF
 [ucheck]
 name=ucheck
-mirrorlist=https://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-f44&arch=x86_64
+mirrorlist=https://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-f45&arch=x86_64
 enabled=1
 EOF
 LATEST_KERNEL=$(dnf -q --setopt=reposdir="$_TMPREPO" --disablerepo='*' --enablerepo=ucheck \
-    --releasever=44 repoquery --qf '%{version}-%{release}\n' kernel-core 2>/dev/null \
+    --releasever=45 repoquery --qf '%{version}-%{release}\n' kernel-core 2>/dev/null \
     | sort -V | tail -1)
 rm -rf "$_TMPREPO"
 
