@@ -5,3 +5,16 @@ anaconda/
 
 # RPM gerado localmente (ver rpm/build-rpm.sh) e repositorio local de build
 *.rpm
+
+# Python bytecode (app capivara-central, COS Dev minimo)
+__pycache__/
+*.pyc
+
+# CHAVE PRIVADA de assinatura do repo — NUNCA versionar (ver keys/README.md).
+# A pública (keys/RPM-GPG-KEY-capivaraos) É versionada de propósito.
+*PRIVATE*
+keys/*secret*
+keys/*.sec.asc
+
+# Repositório publicado localmente pelo publish-repo.sh (assinado; local só).
+/out/

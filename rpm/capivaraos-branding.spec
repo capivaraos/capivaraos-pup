@@ -27,8 +27,8 @@ Version:        2.0.0
 # "2.0.0-1.<dist>.pup" fica RESERVADO para o LANCAMENTO PUBLICO conjunto das
 # 3 spins (ver PROD-61). NEVRA 2.0.0-0.1.alpha1 < 2.0.0-1, entao o dnf nunca
 # atualiza "pra tras". Builds de dev saem rotulados "preview".
-Release:        0.1.alpha1%{?dist}.pup
-Summary:        Identidade visual, wallpapers e branding padrão do CapivaraOS Pup 2.0.0
+Release:        0.2.alpha2%{?dist}.pup
+Summary:        Identidade visual, wallpapers e branding padrão do CapivaraOS Pup 2.0.0 (preview)
 
 License:        GPL-3.0-or-later AND LicenseRef-CapivaraOS-Trademark
 URL:            https://capivaraos.org
@@ -542,6 +542,49 @@ base_profile = fedora
 os_id = capivaraos
 EOF
 
+# ── Snapshots pré-upgrade: config 'root' do snapper criada no 1o boot ────────
+# O capivaraos-upgrade (PROD-121) só tira snapshot automático antes do upgrade
+# in-place se a raiz for btrfs E existir uma config 'root' do snapper. O pacote
+# snapper (ver %packages do kickstart) não cria essa config sozinho, e o
+# instalador do Xfce (Anaconda) não a configura. Então um oneshot de 1o boot a
+# cria no sistema INSTALADO (na live a raiz não é btrfs -> o script sai sem
+# fazer nada). ConditionPathExists=!... faz o systemd pular depois de criada.
+install -d %{buildroot}%{_libexecdir}/capivaraos
+cat > %{buildroot}%{_libexecdir}/capivaraos/snapper-firstboot << 'EOF'
+#!/bin/bash
+# Cria a config 'root' do snapper se a raiz for btrfs e ainda não existir.
+# Idempotente; pensado para rodar uma vez no 1o boot do sistema instalado.
+set -e
+[ "$(findmnt -no FSTYPE /)" = btrfs ] || exit 0
+command -v snapper >/dev/null 2>&1 || exit 0
+snapper list-configs 2>/dev/null | grep -qw root && exit 0
+snapper -c root create-config /
+# Limites conservadores: sem timeline automática (não encher o disco); mantém
+# os snapshots numerados (os pré/pós de transação e o do capivaraos-upgrade).
+snapper -c root set-config TIMELINE_CREATE=no NUMBER_CLEANUP=yes NUMBER_LIMIT=10 NUMBER_LIMIT_IMPORTANT=10 || true
+systemctl enable --now snapper-cleanup.timer >/dev/null 2>&1 || true
+EOF
+chmod 0755 %{buildroot}%{_libexecdir}/capivaraos/snapper-firstboot
+
+install -d %{buildroot}%{_unitdir}
+cat > %{buildroot}%{_unitdir}/capivaraos-snapper-setup.service << 'EOF'
+[Unit]
+Description=CapivaraOS: cria a configuracao snapper 'root' no 1o boot (btrfs)
+Documentation=https://capivaraos.org
+# Pula assim que a config existir (nada de stamp); e so em raiz btrfs.
+ConditionPathExists=!/etc/snapper/configs/root
+After=local-fs.target
+Before=multi-user.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/libexec/capivaraos/snapper-firstboot
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
 %post
 # Splash de boot CapivaraOS
 plymouth-set-default-theme capivaraos >/dev/null 2>&1 || true
@@ -595,6 +638,11 @@ Theme=capivaraos
 EOF
 plymouth-set-default-theme capivaraos >/dev/null 2>&1 || true
 
+# Habilita o oneshot que cria a config 'root' do snapper no 1o boot (PROD-121).
+# %posttrans roda com systemd/snapper ja instalados; o enable offline apenas cria
+# o symlink WantedBy — o servico so age no 1o boot do sistema instalado (btrfs).
+systemctl enable capivaraos-snapper-setup.service >/dev/null 2>&1 || true
+
 # ── Wallpaper padrão do xfdesktop (correção definitiva do BUG-35) ────────────
 # O xfdesktop, quando NÃO há config de backdrop para o nome real do monitor
 # ativo (caso do 1º login, live e instalado -- o /etc/skel só cobre "monitor0"
@@ -619,14 +667,14 @@ fi
 # escritos aqui (em vez de %files) para evitar conflito de arquivo no dnf.
 cat > %{_sysconfdir}/os-release << 'EOF'
 NAME="CapivaraOS"
-VERSION="Pup 2.0.0 (alpha1, preview)"
+VERSION="Pup 2.0.0 (alpha2, preview)"
 RELEASE_TYPE=stable
 ID=capivaraos
 ID_LIKE=fedora
 VERSION_ID=45
 VERSION_CODENAME=pup
 PLATFORM_ID="platform:f45"
-PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha1, preview)"
+PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha2, preview)"
 ANSI_COLOR="0;32"
 LOGO=capivaraos-full-logo
 CPE_NAME="cpe:/o:capivaraos:capivaraos:45"
@@ -639,17 +687,17 @@ REDHAT_BUGZILLA_PRODUCT="Fedora"
 REDHAT_BUGZILLA_PRODUCT_VERSION=45
 REDHAT_SUPPORT_PRODUCT="Fedora"
 REDHAT_SUPPORT_PRODUCT_VERSION=45
-VARIANT="Pup 2.0.0 (alpha1, preview)"
+VARIANT="Pup 2.0.0 (alpha2, preview)"
 VARIANT_ID=pup
 EOF
 
 cat > %{_sysconfdir}/issue << 'EOF'
-CapivaraOS Pup 2.0.0 (alpha1, preview) \n \l
+CapivaraOS Pup 2.0.0 (alpha2, preview) \n \l
 
 EOF
 
 cat > %{_sysconfdir}/issue.net << 'EOF'
-CapivaraOS Pup 2.0.0 (alpha1, preview)
+CapivaraOS Pup 2.0.0 (alpha2, preview)
 EOF
 
 # ── Reaplica os-release apos qualquer atualizacao futura do sistema ────────
@@ -673,14 +721,14 @@ EOF
 grep -q '^NAME="CapivaraOS"' %{_prefix}/lib/os-release 2>/dev/null && exit 0
 cat > %{_sysconfdir}/os-release << 'EOF'
 NAME="CapivaraOS"
-VERSION="Pup 2.0.0 (alpha1, preview)"
+VERSION="Pup 2.0.0 (alpha2, preview)"
 RELEASE_TYPE=stable
 ID=capivaraos
 ID_LIKE=fedora
 VERSION_ID=45
 VERSION_CODENAME=pup
 PLATFORM_ID="platform:f45"
-PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha1, preview)"
+PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha2, preview)"
 ANSI_COLOR="0;32"
 LOGO=capivaraos-full-logo
 CPE_NAME="cpe:/o:capivaraos:capivaraos:45"
@@ -693,17 +741,17 @@ REDHAT_BUGZILLA_PRODUCT="Fedora"
 REDHAT_BUGZILLA_PRODUCT_VERSION=45
 REDHAT_SUPPORT_PRODUCT="Fedora"
 REDHAT_SUPPORT_PRODUCT_VERSION=45
-VARIANT="Pup 2.0.0 (alpha1, preview)"
+VARIANT="Pup 2.0.0 (alpha2, preview)"
 VARIANT_ID=pup
 EOF
 
 cat > %{_sysconfdir}/issue << 'EOF'
-CapivaraOS Pup 2.0.0 (alpha1, preview) \n \l
+CapivaraOS Pup 2.0.0 (alpha2, preview) \n \l
 
 EOF
 
 cat > %{_sysconfdir}/issue.net << 'EOF'
-CapivaraOS Pup 2.0.0 (alpha1, preview)
+CapivaraOS Pup 2.0.0 (alpha2, preview)
 EOF
 
 for kver in $(ls /lib/modules 2>/dev/null); do
@@ -727,8 +775,23 @@ done
 %{_sysconfdir}/skel/.face
 %{_sysconfdir}/skel/.face.icon
 %{_datadir}/cockpit/branding/capivaraos/
+%{_libexecdir}/capivaraos/snapper-firstboot
+%{_unitdir}/capivaraos-snapper-setup.service
 
 %changelog
+* Sat Sep 19 2026 CapivaraOS Project <capivaraos-bot@users.noreply.github.com> - 2.0.0-0.2.alpha2
+- Atualizacao in-place (FEAT-111 / PROD-121): porta o motor do repo assinado +
+  dnf5 system-upgrade (capivaraos-upgrade, capivaraos-repos, build/publish/tests,
+  chave GPG publica, docs) do capivaraos-snout-next/marsh-next, adaptado ao Pup
+  (baseurl pup/, Release .pup, publish-repo SPIN=pup). O botao "nova versao" no
+  Xfce fica com um notificador proprio leve (PROD-123).
+- Snapshots "atualize sem medo" (PROD-121): o Pup 2.x cria a config 'root' do
+  snapper no 1o boot (oneshot capivaraos-snapper-setup.service +
+  /usr/libexec/capivaraos/snapper-firstboot), em raiz btrfs. Sem isso o
+  capivaraos-upgrade nao tira snapshot automatico antes do upgrade in-place.
+  Na sessao live e no-op. Pacotes snapper + btrfs-assistant entram pelo
+  %packages do kickstart. Falta validar em VM instalada.
+
 * Sat Sep 19 2026 CapivaraOS Project <capivaraos-bot@users.noreply.github.com> - 2.0.0-0.1.alpha1
 - Primeira build da serie 2.x do Pup: rebase para Fedora 45 (base do 2.0) — PROD-119.
   O F45 Beta saiu (2026-09-18). Repo novo capivaraos-pup-next (clonado do

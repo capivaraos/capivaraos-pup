@@ -94,6 +94,14 @@ rsync
 liberation-fonts
 dejavu-fonts-all
 
+# ===== SNAPSHOTS ("atualize sem medo") =====
+# Btrfs é o padrão do instalador; snapper dá os snapshots pré/pós. A config
+# "root" do snapper é criada no 1o boot pelo capivaraos-snapper-setup.service
+# (do capivaraos-branding) — sem ela o capivaraos-upgrade não tira snapshot
+# automático antes do upgrade in-place (PROD-121). btrfs-assistant = GUI leve.
+snapper
+btrfs-assistant
+
 %end
 
 # =============================================================================
