@@ -94,6 +94,11 @@ rsync
 liberation-fonts
 dejavu-fonts-all
 
+# ===== COS DEV CENTER (mínimo) =====
+# App de onboarding do 1o boot (Xfce/GTK), versão enxuta (PROD-122): cards de
+# IA local, ferramentas de dev e GitHub CLI. Vem do repo local desta spin.
+capivara-central
+
 # ===== SNAPSHOTS ("atualize sem medo") =====
 # Btrfs é o padrão do instalador; snapper dá os snapshots pré/pós. A config
 # "root" do snapper é criada no 1o boot pelo capivaraos-snapper-setup.service

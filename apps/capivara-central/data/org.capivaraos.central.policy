@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policyconfig PUBLIC
+ "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
+ "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
+<policyconfig>
+  <vendor>CapivaraOS</vendor>
+  <vendor_url>https://capivaraos.org</vendor_url>
+  <icon_name>org.capivaraos.Central</icon_name>
+
+  <action id="org.capivaraos.central.setup-ai">
+    <description>Instalar o pacote de IA local</description>
+    <description xml:lang="pt_BR">Instalar o pacote de IA local</description>
+    <message>É necessário autenticar para instalar a IA local (Ollama e Alpaca).</message>
+    <message xml:lang="pt_BR">É necessário autenticar para instalar a IA local (Ollama e Alpaca).</message>
+    <defaults>
+      <allow_any>auth_admin</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>auth_admin_keep</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/libexec/capivara-central/install-ai-system</annotate>
+    <annotate key="org.freedesktop.policykit.exec.allow_gui">true</annotate>
+  </action>
+
+  <action id="org.capivaraos.central.install-devtools">
+    <description>Instalar ferramentas de desenvolvimento (VS Code, Docker CE)</description>
+    <description xml:lang="pt_BR">Instalar ferramentas de desenvolvimento (VS Code, Docker CE)</description>
+    <message>É necessário autenticar para instalar as ferramentas de dev de sistema.</message>
+    <message xml:lang="pt_BR">É necessário autenticar para instalar as ferramentas de dev de sistema.</message>
+    <defaults>
+      <allow_any>auth_admin</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>auth_admin_keep</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/libexec/capivara-central/install-devtools-system</annotate>
+    <annotate key="org.freedesktop.policykit.exec.allow_gui">true</annotate>
+  </action>
+
+  <action id="org.capivaraos.central.install-gh">
+    <description>Instalar o GitHub CLI (gh) e o pre-commit</description>
+    <description xml:lang="pt_BR">Instalar o GitHub CLI (gh) e o pre-commit</description>
+    <message>É necessário autenticar para instalar o gh e o pre-commit.</message>
+    <message xml:lang="pt_BR">É necessário autenticar para instalar o gh e o pre-commit.</message>
+    <defaults>
+      <allow_any>auth_admin</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>auth_admin_keep</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/libexec/capivara-central/install-gh-system</annotate>
+    <annotate key="org.freedesktop.policykit.exec.allow_gui">true</annotate>
+  </action>
+</policyconfig>

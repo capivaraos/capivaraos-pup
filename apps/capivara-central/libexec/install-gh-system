@@ -1,0 +1,13 @@
+#!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Parte privilegiada do card "GitHub CLI + pre-commit": instala o gh e o
+# pre-commit (ambos empacotados no Fedora — sem repo de terceiros). Executado
+# como ROOT via pkexec (polkit action org.capivaraos.central.install-gh).
+# NÃO chamar direto.
+set -uo pipefail
+
+echo ">>> Instalando o GitHub CLI (gh) e o pre-commit"
+dnf install -y gh pre-commit \
+    || { echo "ERRO: falha ao instalar gh/pre-commit."; exit 1; }
+echo ">>> Etapa de administrador concluída"
+exit 0

@@ -1,0 +1,62 @@
+#!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Card "GitHub CLI + pre-commit" (segurança shift-left). Roda como o USUÁRIO.
+# A instalação do gh/pre-commit (se faltarem) é elevada por pkexec, casando com
+# a polkit action org.capivaraos.central.install-gh. A configuração — template
+# global de hooks + config de exemplo — é por usuário. O login interativo
+# (gh auth login) fica no botão "Entrar no GitHub" do card (precisa de terminal).
+#
+# As linhas iniciadas por ">>> " viram o rótulo de passo grande no app.
+set -uo pipefail
+
+SYS_HELPER=/usr/libexec/capivara-central/install-gh-system
+
+# --- Garante gh + pre-commit instalados ------------------------------------
+if ! command -v gh >/dev/null 2>&1 || ! command -v pre-commit >/dev/null 2>&1; then
+    echo ">>> Instalando gh e pre-commit (pode pedir sua senha)"
+    if [ -x "$SYS_HELPER" ]; then
+        pkexec "$SYS_HELPER" || { echo "Falha ao instalar gh/pre-commit."; exit 1; }
+    else
+        echo "ERRO: helper de administrador não encontrado em $SYS_HELPER"
+        exit 1
+    fi
+fi
+
+# --- Config de exemplo do pre-commit com hooks de segurança ----------------
+CFG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/capivara-central"
+mkdir -p "$CFG_DIR"
+SAMPLE="$CFG_DIR/pre-commit-config.sample.yaml"
+cat > "$SAMPLE" <<'EOF'
+# Template CapivaraOS de pre-commit (segurança shift-left).
+# Copie para a raiz do seu projeto como .pre-commit-config.yaml e rode:
+#   pre-commit install
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.4
+    hooks:
+      - id: gitleaks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: check-added-large-files
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.10.0.1
+    hooks:
+      - id: shellcheck
+EOF
+echo "Config de exemplo do pre-commit salva em: $SAMPLE"
+
+# --- Template global do git: hook do pre-commit já ativo em todo repo novo --
+TPL_DIR="$HOME/.git-template"
+echo ">>> Configurando o template global do git em $TPL_DIR"
+git config --global init.templateDir "$TPL_DIR"
+pre-commit init-templatedir -t pre-commit "$TPL_DIR" \
+    || echo "AVISO: não consegui inicializar o template do pre-commit."
+
+echo ">>> Pronto! gh + pre-commit configurados."
+echo "    Em um projeto: copie o exemplo acima para .pre-commit-config.yaml."
+echo "    Para entrar no GitHub, use o botão \"Entrar no GitHub\" no card."
+exit 0

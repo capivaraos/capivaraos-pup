@@ -1,0 +1,15 @@
+[Desktop Entry]
+Type=Application
+Name=COS Dev Center
+Name[pt_BR]=COS Dev Center
+GenericName=Central de desenvolvimento do CapivaraOS
+GenericName[pt_BR]=Central de desenvolvimento do CapivaraOS
+Comment=Instale os extras opcionais da sua estação de desenvolvimento
+Comment[pt_BR]=Instale os extras opcionais da sua estação de desenvolvimento
+Exec=capivara-central
+Icon=org.capivaraos.Central
+Terminal=false
+Categories=Development;
+Keywords=onboarding;desenvolvimento;dev;central;IA;ollama;extras;instalar;setup;
+Keywords[pt_BR]=onboarding;desenvolvimento;dev;central;IA;ollama;extras;instalar;setup;
+StartupNotify=true
