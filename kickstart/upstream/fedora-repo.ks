@@ -15,12 +15,12 @@
 #    pública porque esta spin ainda não foi publicada.
 #      https://weldr.io/lorax/livemedia-creator.html
 #
-# 2) Usamos valores literais (f44/x86_64) nas linhas "repo" em vez de
+# 2) Usamos valores literais (f45/x86_64) nas linhas "repo" em vez de
 #    $releasever/$basearch. Isto NÃO era a causa do bug acima (o nome era),
 #    mas mantém as linhas inequívocas. Ao mexer aqui, confira que o
-#    build-all.sh usa o mesmo releasever (--releasever=44).
+#    build-all.sh usa o mesmo releasever (--releasever=45).
 
-repo --name=fedora --mirrorlist=https://mirrors.fedoraproject.org/mirrorlist?repo=fedora-44&arch=x86_64
-repo --name=fedora-updates --mirrorlist=https://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-f44&arch=x86_64
-#repo --name=fedora-updates-testing --mirrorlist=https://mirrors.fedoraproject.org/mirrorlist?repo=updates-testing-f44&arch=x86_64
+repo --name=fedora --mirrorlist=https://mirrors.fedoraproject.org/mirrorlist?repo=fedora-45&arch=x86_64
+repo --name=fedora-updates --mirrorlist=https://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-f45&arch=x86_64
+#repo --name=fedora-updates-testing --mirrorlist=https://mirrors.fedoraproject.org/mirrorlist?repo=updates-testing-f45&arch=x86_64
 url --mirrorlist=https://mirrors.fedoraproject.org/mirrorlist?repo=fedora-$releasever&arch=$basearch

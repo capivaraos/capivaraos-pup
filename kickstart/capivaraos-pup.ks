@@ -1,6 +1,6 @@
 #version=DEVEL
 # =============================================================================
-# CapivaraOS Pup - Fedora 44 (Xfce) - kickstart principal
+# CapivaraOS Pup - Fedora 45 (Xfce) - kickstart principal
 # =============================================================================
 #
 # Spin leve do CapivaraOS, baseado no ambiente Xfce oficial do Fedora,
@@ -15,9 +15,9 @@
 #   livemedia-creator --ks=/var/tmp/capivaraos-pup-flat.ks \
 #       --no-virt --resultdir=/var/tmp/capivaraos-pup-result \
 #       --project="CapivaraOS Pup" --make-iso --iso-only \
-#       --iso-name=CapivaraOS-Pup-1.1.8-x86_64.iso \
-#       --volid="CapivaraOS Pup 1.1.8" --variant="CapivaraOS Pup" \
-#       --releasever=44
+#       --iso-name=CapivaraOS-Pup-2.0.0-alpha1-x86_64.iso \
+#       --volid="CapivaraOS Pup 2.0.0 alpha1" --variant="CapivaraOS Pup" \
+#       --releasever=45
 #
 # NOTA: o anaconda resolve "%include caminho.ks" em relação ao seu próprio
 # cwd (não ao diretório deste arquivo), por isso o ks-flatten.py acima é

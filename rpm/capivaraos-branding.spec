@@ -15,14 +15,20 @@
 #     sem decoração de terceiros.
 
 Name:           capivaraos-branding
-Version:        1.1.8
+Version:        2.0.0
 # Sufixo ".pup": as tres spins constroem um pacote com este MESMO Name e
 # compartilham ~/rpmbuild, entao sem ele duas spins na mesma Version-Release
 # geram nomes de arquivo identicos -- ja causou dois incidentes (dnf instalou
 # o RPM do Pup no lugar do Snout em junho; build do Pup consumiu sources da
 # Marsh em 21/07, BUG-30). Com o sufixo a colisao e impossivel por construcao.
-Release:        1%{?dist}.pup
-Summary:        Identidade visual, wallpapers e branding padrão do CapivaraOS Pup
+#
+# Serie 2.x (Fedora 45): pre-releases no padrao Fedora
+# "0.N.alphaN.<dist>.pup" (0.1.alpha1, 0.2.alpha2, ...). O
+# "2.0.0-1.<dist>.pup" fica RESERVADO para o LANCAMENTO PUBLICO conjunto das
+# 3 spins (ver PROD-61). NEVRA 2.0.0-0.1.alpha1 < 2.0.0-1, entao o dnf nunca
+# atualiza "pra tras". Builds de dev saem rotulados "preview".
+Release:        0.1.alpha1%{?dist}.pup
+Summary:        Identidade visual, wallpapers e branding padrão do CapivaraOS Pup 2.0.0
 
 License:        GPL-3.0-or-later AND LicenseRef-CapivaraOS-Trademark AND CC-BY-SA-3.0 AND CC-BY-SA-4.0
 URL:            https://capivaraos.org
@@ -43,7 +49,7 @@ Requires:       lightdm-gtk
 # qual wallpaper fica ativo via %posttrans/skel, sem remover o pacote.
 
 %description
-Pacote de identidade visual do CapivaraOS Pup: wallpapers (planos de fundo
+Pacote de identidade visual do CapivaraOS Pup 2.0.0 (preview): wallpapers (planos de fundo
 de cor sólida com a logo no centro, compartilhados com as demais spins do
 CapivaraOS, e fotos de capivaras com filhotes do Wikimedia Commons, CC
 BY/CC BY-SA), conjunto de ícones "capivaraos-logo" e "capivaraos-full-logo",
@@ -613,37 +619,37 @@ fi
 # escritos aqui (em vez de %files) para evitar conflito de arquivo no dnf.
 cat > %{_sysconfdir}/os-release << 'EOF'
 NAME="CapivaraOS"
-VERSION="Pup 1.1.8"
+VERSION="Pup 2.0.0 (alpha1, preview)"
 RELEASE_TYPE=stable
 ID=capivaraos
 ID_LIKE=fedora
-VERSION_ID=44
+VERSION_ID=45
 VERSION_CODENAME=pup
-PLATFORM_ID="platform:f44"
-PRETTY_NAME="CapivaraOS"
+PLATFORM_ID="platform:f45"
+PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha1, preview)"
 ANSI_COLOR="0;32"
 LOGO=capivaraos-full-logo
-CPE_NAME="cpe:/o:capivaraos:capivaraos:44"
+CPE_NAME="cpe:/o:capivaraos:capivaraos:45"
 DEFAULT_HOSTNAME=capivaraos
 HOME_URL="https://capivaraos.org"
 DOCUMENTATION_URL="https://capivaraos.org"
 SUPPORT_URL="https://capivaraos.org"
 BUG_REPORT_URL="https://capivaraos.org"
 REDHAT_BUGZILLA_PRODUCT="Fedora"
-REDHAT_BUGZILLA_PRODUCT_VERSION=44
+REDHAT_BUGZILLA_PRODUCT_VERSION=45
 REDHAT_SUPPORT_PRODUCT="Fedora"
-REDHAT_SUPPORT_PRODUCT_VERSION=44
-VARIANT="Pup 1.1.8"
+REDHAT_SUPPORT_PRODUCT_VERSION=45
+VARIANT="Pup 2.0.0 (alpha1, preview)"
 VARIANT_ID=pup
 EOF
 
 cat > %{_sysconfdir}/issue << 'EOF'
-CapivaraOS Pup 1.1.8 \n \l
+CapivaraOS Pup 2.0.0 (alpha1, preview) \n \l
 
 EOF
 
 cat > %{_sysconfdir}/issue.net << 'EOF'
-CapivaraOS Pup 1.1.8
+CapivaraOS Pup 2.0.0 (alpha1, preview)
 EOF
 
 # ── Reaplica os-release apos qualquer atualizacao futura do sistema ────────
@@ -667,37 +673,37 @@ EOF
 grep -q '^NAME="CapivaraOS"' %{_prefix}/lib/os-release 2>/dev/null && exit 0
 cat > %{_sysconfdir}/os-release << 'EOF'
 NAME="CapivaraOS"
-VERSION="Pup 1.1.8"
+VERSION="Pup 2.0.0 (alpha1, preview)"
 RELEASE_TYPE=stable
 ID=capivaraos
 ID_LIKE=fedora
-VERSION_ID=44
+VERSION_ID=45
 VERSION_CODENAME=pup
-PLATFORM_ID="platform:f44"
-PRETTY_NAME="CapivaraOS"
+PLATFORM_ID="platform:f45"
+PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha1, preview)"
 ANSI_COLOR="0;32"
 LOGO=capivaraos-full-logo
-CPE_NAME="cpe:/o:capivaraos:capivaraos:44"
+CPE_NAME="cpe:/o:capivaraos:capivaraos:45"
 DEFAULT_HOSTNAME=capivaraos
 HOME_URL="https://capivaraos.org"
 DOCUMENTATION_URL="https://capivaraos.org"
 SUPPORT_URL="https://capivaraos.org"
 BUG_REPORT_URL="https://capivaraos.org"
 REDHAT_BUGZILLA_PRODUCT="Fedora"
-REDHAT_BUGZILLA_PRODUCT_VERSION=44
+REDHAT_BUGZILLA_PRODUCT_VERSION=45
 REDHAT_SUPPORT_PRODUCT="Fedora"
-REDHAT_SUPPORT_PRODUCT_VERSION=44
-VARIANT="Pup 1.1.8"
+REDHAT_SUPPORT_PRODUCT_VERSION=45
+VARIANT="Pup 2.0.0 (alpha1, preview)"
 VARIANT_ID=pup
 EOF
 
 cat > %{_sysconfdir}/issue << 'EOF'
-CapivaraOS Pup 1.1.8 \n \l
+CapivaraOS Pup 2.0.0 (alpha1, preview) \n \l
 
 EOF
 
 cat > %{_sysconfdir}/issue.net << 'EOF'
-CapivaraOS Pup 1.1.8
+CapivaraOS Pup 2.0.0 (alpha1, preview)
 EOF
 
 for kver in $(ls /lib/modules 2>/dev/null); do
@@ -724,6 +730,17 @@ done
 %{_datadir}/cockpit/branding/capivaraos/
 
 %changelog
+* Sat Sep 19 2026 CapivaraOS Project <capivaraos-bot@users.noreply.github.com> - 2.0.0-0.1.alpha1
+- Primeira build da serie 2.x do Pup: rebase para Fedora 45 (base do 2.0) — PROD-119.
+  O F45 Beta saiu (2026-09-18). Repo novo capivaraos-pup-next (clonado do
+  capivaraos-pup-fedora p/ preservar a base Xfce), branch rebase-f45. Repoint do
+  compose: build-all.sh --releasever=45, base do kickstart f44 -> f45
+  (fedora-45/updates-released-f45), trava de updates em 45. os-release/issue ->
+  Fedora 45 + "Pup 2.0.0 (alpha1, preview)". Pup CONTINUA Xfce (leve).
+  Versionamento pre-release "0.N.alphaN.pup"; "2.0.0-1.pup" reservado p/ o
+  lancamento publico conjunto das 3 spins (PROD-61). SMOKE BUILD p/ levantar
+  quebras (Xfce/LightDM no F45, Anaconda 45) — NAO cortar ISO publica do F45 antes do GA.
+
 * Mon Aug 17 2026 CapivaraOS Project <capivaraos-bot@users.noreply.github.com> - 1.1.8-1
 - Corrige a FALHA de instalacao em UEFI no passo do bootloader (BUG-38):
   "org.fedoraproject.Anaconda.BootloaderInstallationError: gen_grub_cfgstub
