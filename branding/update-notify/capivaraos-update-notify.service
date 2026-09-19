@@ -1,0 +1,9 @@
+[Unit]
+Description=CapivaraOS: aviso de nova versao disponivel (atualizacao in-place)
+Documentation=https://capivaraos.org
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/capivaraos/update-notify

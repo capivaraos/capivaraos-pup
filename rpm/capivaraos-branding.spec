@@ -27,7 +27,7 @@ Version:        2.0.0
 # "2.0.0-1.<dist>.pup" fica RESERVADO para o LANCAMENTO PUBLICO conjunto das
 # 3 spins (ver PROD-61). NEVRA 2.0.0-0.1.alpha1 < 2.0.0-1, entao o dnf nunca
 # atualiza "pra tras". Builds de dev saem rotulados "preview".
-Release:        0.3.alpha3%{?dist}.pup
+Release:        0.4.alpha4%{?dist}.pup
 Summary:        Identidade visual, wallpapers e branding padrão do CapivaraOS Pup 2.0.0 (preview)
 
 License:        GPL-3.0-or-later AND LicenseRef-CapivaraOS-Trademark
@@ -40,6 +40,9 @@ BuildRequires:  ImageMagick
 # /usr/bin/convert ou /usr/bin/magick
 Requires:       plymouth
 Requires:       lightdm-gtk
+# libnotify: notify-send do aviso leve de nova versao (capivaraos-update-notify,
+# PROD-123). O timer/servico de usuario ficam neste pacote.
+Requires:       libnotify
 
 # NOTA CapivaraOS: NÃO declaramos "Conflicts: desktop-backgrounds-compat"
 # aqui. Esse pacote é Requires obrigatório de xfdesktop e de lightdm-gtk no
@@ -585,6 +588,17 @@ ExecStart=/usr/libexec/capivaraos/snapper-firstboot
 WantedBy=multi-user.target
 EOF
 
+# ── Aviso leve de "nova versao" (PROD-123): script + timer/servico de usuario ─
+# O Xfce nao tem GNOME Software; este e o nosso aviso proprio e leve. Roda por um
+# timer de USUARIO (systemd --user), sem daemon persistente. E no-op enquanto o
+# capivaraos-upgrade nao estiver instalado (pre-lancamento).
+install -Dm0755 update-notify/update-notify \
+    %{buildroot}%{_libexecdir}/capivaraos/update-notify
+install -Dm0644 update-notify/capivaraos-update-notify.service \
+    %{buildroot}%{_userunitdir}/capivaraos-update-notify.service
+install -Dm0644 update-notify/capivaraos-update-notify.timer \
+    %{buildroot}%{_userunitdir}/capivaraos-update-notify.timer
+
 %post
 # Splash de boot CapivaraOS
 plymouth-set-default-theme capivaraos >/dev/null 2>&1 || true
@@ -643,6 +657,11 @@ plymouth-set-default-theme capivaraos >/dev/null 2>&1 || true
 # o symlink WantedBy — o servico so age no 1o boot do sistema instalado (btrfs).
 systemctl enable capivaraos-snapper-setup.service >/dev/null 2>&1 || true
 
+# Habilita, para todos os usuarios, o timer do aviso leve de nova versao
+# (PROD-123). --global cria o symlink em /etc/systemd/user; o servico so age
+# quando ha nova versao E o capivaraos-upgrade esta presente (no-op ate la).
+systemctl --global enable capivaraos-update-notify.timer >/dev/null 2>&1 || true
+
 # ── Wallpaper padrão do xfdesktop (correção definitiva do BUG-35) ────────────
 # O xfdesktop, quando NÃO há config de backdrop para o nome real do monitor
 # ativo (caso do 1º login, live e instalado -- o /etc/skel só cobre "monitor0"
@@ -667,14 +686,14 @@ fi
 # escritos aqui (em vez de %files) para evitar conflito de arquivo no dnf.
 cat > %{_sysconfdir}/os-release << 'EOF'
 NAME="CapivaraOS"
-VERSION="Pup 2.0.0 (alpha3, preview)"
+VERSION="Pup 2.0.0 (alpha4, preview)"
 RELEASE_TYPE=stable
 ID=capivaraos
 ID_LIKE=fedora
 VERSION_ID=45
 VERSION_CODENAME=pup
 PLATFORM_ID="platform:f45"
-PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha3, preview)"
+PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha4, preview)"
 ANSI_COLOR="0;32"
 LOGO=capivaraos-full-logo
 CPE_NAME="cpe:/o:capivaraos:capivaraos:45"
@@ -687,17 +706,17 @@ REDHAT_BUGZILLA_PRODUCT="Fedora"
 REDHAT_BUGZILLA_PRODUCT_VERSION=45
 REDHAT_SUPPORT_PRODUCT="Fedora"
 REDHAT_SUPPORT_PRODUCT_VERSION=45
-VARIANT="Pup 2.0.0 (alpha3, preview)"
+VARIANT="Pup 2.0.0 (alpha4, preview)"
 VARIANT_ID=pup
 EOF
 
 cat > %{_sysconfdir}/issue << 'EOF'
-CapivaraOS Pup 2.0.0 (alpha3, preview) \n \l
+CapivaraOS Pup 2.0.0 (alpha4, preview) \n \l
 
 EOF
 
 cat > %{_sysconfdir}/issue.net << 'EOF'
-CapivaraOS Pup 2.0.0 (alpha3, preview)
+CapivaraOS Pup 2.0.0 (alpha4, preview)
 EOF
 
 # ── Reaplica os-release apos qualquer atualizacao futura do sistema ────────
@@ -721,14 +740,14 @@ EOF
 grep -q '^NAME="CapivaraOS"' %{_prefix}/lib/os-release 2>/dev/null && exit 0
 cat > %{_sysconfdir}/os-release << 'EOF'
 NAME="CapivaraOS"
-VERSION="Pup 2.0.0 (alpha3, preview)"
+VERSION="Pup 2.0.0 (alpha4, preview)"
 RELEASE_TYPE=stable
 ID=capivaraos
 ID_LIKE=fedora
 VERSION_ID=45
 VERSION_CODENAME=pup
 PLATFORM_ID="platform:f45"
-PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha3, preview)"
+PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha4, preview)"
 ANSI_COLOR="0;32"
 LOGO=capivaraos-full-logo
 CPE_NAME="cpe:/o:capivaraos:capivaraos:45"
@@ -741,17 +760,17 @@ REDHAT_BUGZILLA_PRODUCT="Fedora"
 REDHAT_BUGZILLA_PRODUCT_VERSION=45
 REDHAT_SUPPORT_PRODUCT="Fedora"
 REDHAT_SUPPORT_PRODUCT_VERSION=45
-VARIANT="Pup 2.0.0 (alpha3, preview)"
+VARIANT="Pup 2.0.0 (alpha4, preview)"
 VARIANT_ID=pup
 EOF
 
 cat > %{_sysconfdir}/issue << 'EOF'
-CapivaraOS Pup 2.0.0 (alpha3, preview) \n \l
+CapivaraOS Pup 2.0.0 (alpha4, preview) \n \l
 
 EOF
 
 cat > %{_sysconfdir}/issue.net << 'EOF'
-CapivaraOS Pup 2.0.0 (alpha3, preview)
+CapivaraOS Pup 2.0.0 (alpha4, preview)
 EOF
 
 for kver in $(ls /lib/modules 2>/dev/null); do
@@ -777,8 +796,22 @@ done
 %{_datadir}/cockpit/branding/capivaraos/
 %{_libexecdir}/capivaraos/snapper-firstboot
 %{_unitdir}/capivaraos-snapper-setup.service
+%{_libexecdir}/capivaraos/update-notify
+%{_userunitdir}/capivaraos-update-notify.service
+%{_userunitdir}/capivaraos-update-notify.timer
 
 %changelog
+* Sat Sep 19 2026 CapivaraOS Project <capivaraos-bot@users.noreply.github.com> - 2.0.0-0.4.alpha4
+- Notificador de atualizacao leve no Xfce (PROD-123): como o Xfce nao tem GNOME
+  Software, este e o aviso proprio de "nova versao". Sem daemon: um timer de
+  USUARIO (systemd --user, ~3min apos login + 1x/dia) roda
+  /usr/libexec/capivaraos/update-notify, que faz `capivaraos-upgrade check`
+  (read-only) e, havendo nova versao, mostra UMA notificacao (notify-send) com o
+  botao "Atualizar agora" -> abre `sudo capivaraos-upgrade run` num xfce4-terminal.
+  No-op silencioso enquanto o capivaraos-upgrade/repo assinado nao estiverem
+  presentes (guardrail FEAT-111 intacto). Timer habilitado p/ todos por
+  `systemctl --global enable`. Requires: libnotify.
+
 * Sat Sep 19 2026 CapivaraOS Project <capivaraos-bot@users.noreply.github.com> - 2.0.0-0.3.alpha3
 - COS Dev Center MÍNIMO no Pup (PROD-122): a ISO passa a incluir o app
   capivara-central (pacote próprio, versão enxuta — 3 cards: IA local, dev, gh).
