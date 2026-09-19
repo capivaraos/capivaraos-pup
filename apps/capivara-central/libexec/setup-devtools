@@ -1,0 +1,85 @@
+#!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Orquestrador do card "Ferramentas de dev". Roda como o USUÁRIO logado.
+# A parte de root (VS Code, Docker CE) é elevada num único pkexec, casando com a
+# polkit action org.capivaraos.central.install-devtools. A parte de usuário
+# (extensão Cline no editor, Open WebUI em container rootless) roda direto aqui.
+#
+# Uso: setup-devtools <item> [<item> ...]  — itens: vscode, cline, openwebui, docker
+# As linhas iniciadas por ">>> " viram o rótulo de passo grande no app.
+set -uo pipefail
+
+SYS_HELPER=/usr/libexec/capivara-central/install-devtools-system
+
+priv=()
+has_cline=0
+has_openwebui=0
+for t in "$@"; do
+    case "$t" in
+        vscode|docker) priv+=("$t") ;;
+        cline)         has_cline=1 ;;
+        openwebui)     has_openwebui=1 ;;
+    esac
+done
+
+rc=0
+
+# --- Itens de sistema (um único pkexec para VS Code e/ou Docker) -----------
+if [ "${#priv[@]}" -gt 0 ]; then
+    echo ">>> Instalando itens de sistema (pode pedir sua senha): ${priv[*]}"
+    if [ -x "$SYS_HELPER" ]; then
+        pkexec "$SYS_HELPER" "${priv[@]}" || rc=1
+    else
+        echo "ERRO: helper de administrador não encontrado em $SYS_HELPER"
+        rc=1
+    fi
+fi
+
+# --- Cline (IA agentic no editor), por usuário -----------------------------
+# Extensão publicada no Open VSX/Marketplace como saoudrizwan.claude-dev.
+if [ "$has_cline" -eq 1 ]; then
+    echo ">>> Instalando a extensão Cline no editor"
+    done_any=0
+    if command -v code >/dev/null 2>&1; then
+        code --install-extension saoudrizwan.claude-dev --force && done_any=1 \
+            || echo "AVISO: não consegui instalar o Cline no VS Code."
+    fi
+    if command -v codium >/dev/null 2>&1; then
+        codium --install-extension saoudrizwan.claude-dev --force && done_any=1 \
+            || echo "AVISO: não consegui instalar o Cline no VSCodium."
+    fi
+    [ "$done_any" -eq 1 ] \
+        || echo "AVISO: nenhum editor (code/codium) encontrado para o Cline."
+fi
+
+# --- Open WebUI (chat web do Ollama) em container rootless via podman -------
+# Best-effort: a imagem tem vários GB e depende de rede/espaço em disco; se
+# falhar, é só um AVISO e NÃO derruba os demais itens do card (o usuário pode
+# tentar de novo depois). Separamos o "pull" do "run" para diagnosticar melhor.
+if [ "$has_openwebui" -eq 1 ]; then
+    echo ">>> Subindo o Open WebUI (container rootless via podman)"
+    if command -v podman >/dev/null 2>&1; then
+        podman rm -f open-webui >/dev/null 2>&1 || true
+        echo ">>> Baixando a imagem do Open WebUI (vários GB; pode demorar)"
+        if ! podman pull ghcr.io/open-webui/open-webui:main; then
+            echo "AVISO: não consegui baixar a imagem do Open WebUI."
+            echo "       Causas comuns: rede instável ou POUCO ESPAÇO em disco"
+            echo "       (a imagem tem vários GB — confira com 'df -h'). Dá para"
+            echo "       tentar de novo depois; os demais itens já foram instalados."
+        elif podman run -d --name open-webui --restart=always \
+                 -p 3000:8080 -v open-webui:/app/backend/data \
+                 --add-host=host.containers.internal:host-gateway \
+                 -e OLLAMA_BASE_URL=http://host.containers.internal:11434 \
+                 ghcr.io/open-webui/open-webui:main; then
+            echo "Open WebUI no ar em http://localhost:3000"
+        else
+            echo "AVISO: baixei a imagem, mas não consegui iniciar o container."
+            echo "       Verifique se a porta 3000 já está em uso."
+        fi
+    else
+        echo "AVISO: podman não encontrado; pulei o Open WebUI."
+    fi
+fi
+
+echo ">>> Ferramentas de dev concluídas."
+exit "$rc"

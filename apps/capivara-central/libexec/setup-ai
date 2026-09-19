@@ -1,0 +1,37 @@
+#!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Orquestrador do pacote de IA local — roda como o USUÁRIO logado.
+# A parte que precisa de root (dnf/systemctl/flatpak --system) é elevada por
+# pkexec, casando com a polkit action org.capivaraos.central.setup-ai. A parte
+# de usuário (extensão do VSCodium) roda direto aqui.
+#
+# As linhas iniciadas por ">>> " viram o rótulo de passo grande no app.
+set -uo pipefail
+
+SYS_HELPER=/usr/libexec/capivara-central/install-ai-system
+
+echo ">>> Instalando o motor de IA (pode pedir sua senha)"
+if [ -x "$SYS_HELPER" ]; then
+    pkexec "$SYS_HELPER"
+    rc=$?
+else
+    echo "ERRO: helper de administrador não encontrado em $SYS_HELPER"
+    rc=1
+fi
+if [ "$rc" -ne 0 ]; then
+    echo "A etapa de administrador falhou (código $rc)."
+    exit "$rc"
+fi
+
+echo ">>> Instalando a extensão Continue no VSCodium"
+if command -v codium >/dev/null 2>&1; then
+    # O VSCodium já vem configurado com o registro Open VSX (ver
+    # capivaraos-post-devstation.ks), de onde a extensão Continue é baixada.
+    codium --install-extension Continue.continue --force \
+        || echo "AVISO: não consegui instalar a extensão Continue; instale manualmente pelo VSCodium."
+else
+    echo "AVISO: VSCodium não encontrado; pulei a extensão Continue."
+fi
+
+echo ">>> Tudo pronto! Abra o Alpaca para conversar com a IA local."
+exit 0

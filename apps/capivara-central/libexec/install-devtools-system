@@ -1,0 +1,66 @@
+#!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Parte privilegiada do card "Ferramentas de dev" — instala o que exige root
+# (repos de terceiros + dnf). Executado como ROOT via pkexec (polkit action
+# org.capivaraos.central.install-devtools). NÃO chamar direto.
+#
+# Args: subconjunto de {vscode, docker}. Qualquer outro valor é ignorado
+# (defesa em profundidade — este script roda como root).
+#
+# As linhas iniciadas por ">>> " viram o rótulo de passo grande no app.
+set -uo pipefail
+
+# Normaliza a seleção recebida, aceitando só os valores conhecidos.
+SELECTED=""
+for t in "$@"; do
+    case "$t" in
+        vscode|docker) SELECTED="${SELECTED}${t}"$'\n' ;;
+    esac
+done
+picked() { printf '%s' "$SELECTED" | grep -qx "$1"; }
+
+install_vscode() {
+    echo ">>> Instalando o Visual Studio Code (repo da Microsoft)"
+    rpm --import https://packages.microsoft.com/keys/microsoft.asc 2>/dev/null || true
+    cat > /etc/yum.repos.d/vscode.repo <<'EOF'
+[code]
+name=Visual Studio Code
+baseurl=https://packages.microsoft.com/yumrepos/vscode
+enabled=1
+autorefresh=1
+type=rpm-md
+gpgcheck=1
+gpgkey=https://packages.microsoft.com/keys/microsoft.asc
+EOF
+    dnf install -y code || { echo "ERRO: falha ao instalar o VS Code."; return 1; }
+}
+
+install_docker() {
+    echo ">>> Instalando o Docker CE (repo oficial do Docker)"
+    dnf -y install dnf-plugins-core || true
+    # dnf5 (Fedora 41+) usa 'config-manager addrepo'; mantemos um fallback.
+    dnf config-manager addrepo \
+        --from-repofile=https://download.docker.com/linux/fedora/docker-ce.repo 2>/dev/null \
+        || dnf config-manager --add-repo \
+             https://download.docker.com/linux/fedora/docker-ce.repo 2>/dev/null \
+        || echo "AVISO: não consegui adicionar o repo do Docker (talvez já exista)."
+    dnf install -y docker-ce docker-ce-cli containerd.io \
+                   docker-buildx-plugin docker-compose-plugin \
+        || { echo "ERRO: falha ao instalar o Docker CE."; return 1; }
+    systemctl enable --now docker.service \
+        || echo "AVISO: não consegui ativar o serviço docker agora."
+    # Adiciona quem chamou (via pkexec) ao grupo docker, para usar sem sudo.
+    if [ -n "${PKEXEC_UID:-}" ]; then
+        u="$(getent passwd "$PKEXEC_UID" | cut -d: -f1)"
+        if [ -n "$u" ]; then
+            usermod -aG docker "$u" \
+                && echo "Usuário '$u' adicionado ao grupo 'docker' (saia e entre de novo)."
+        fi
+    fi
+}
+
+rc=0
+picked vscode && { install_vscode || rc=1; }
+picked docker && { install_docker || rc=1; }
+echo ">>> Etapa de administrador concluída"
+exit "$rc"
