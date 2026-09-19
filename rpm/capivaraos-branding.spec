@@ -30,7 +30,7 @@ Version:        2.0.0
 Release:        0.1.alpha1%{?dist}.pup
 Summary:        Identidade visual, wallpapers e branding padrão do CapivaraOS Pup 2.0.0
 
-License:        GPL-3.0-or-later AND LicenseRef-CapivaraOS-Trademark AND CC-BY-SA-3.0 AND CC-BY-SA-4.0
+License:        GPL-3.0-or-later AND LicenseRef-CapivaraOS-Trademark
 URL:            https://capivaraos.org
 BuildArch:      noarch
 
@@ -49,12 +49,13 @@ Requires:       lightdm-gtk
 # qual wallpaper fica ativo via %posttrans/skel, sem remover o pacote.
 
 %description
-Pacote de identidade visual do CapivaraOS Pup 2.0.0 (preview): wallpapers (planos de fundo
-de cor sólida com a logo no centro, compartilhados com as demais spins do
-CapivaraOS, e fotos de capivaras com filhotes do Wikimedia Commons, CC
-BY/CC BY-SA), conjunto de ícones "capivaraos-logo" e "capivaraos-full-logo",
-tema Plymouth de boot, tela de login LightDM, /etc/os-release, /etc/issue e
-wallpaper padrão do Xfce.
+Pacote de identidade visual do CapivaraOS Pup 2.0.0 (preview): o conjunto de
+wallpapers da marca do CapivaraOS 2.x (moonlight/sunset/dev/comics/abstract),
+compartilhado com as demais spins (Marsh e Snout), padrão "Luar" (moonlight);
+conjunto de ícones "capivaraos-logo" e "capivaraos-full-logo", tema Plymouth de
+boot, tela de login LightDM, /etc/os-release, /etc/issue e wallpaper padrão do
+Xfce. Os wallpapers padrão adicionais continuam vindo do pacote xfce-backgrounds
+da base.
 
 %prep
 %setup -q
@@ -134,9 +135,9 @@ done
 
 %install
 set -e
-DEFAULT_WP=%{_datadir}/backgrounds/capivaraos/capivaraos-desktop-roxo-branco.png
+DEFAULT_WP=%{_datadir}/backgrounds/capivaraos/capivaraos-wp-moonlight.png
 
-# ── Wallpapers (arquivos originais + créditos) ──────────────────────────────
+# ── Wallpapers da marca 2.x ─────────────────────────────────────────────────
 install -d %{buildroot}%{_datadir}/backgrounds/capivaraos
 # NAO instalamos backgrounds/CapivaraOS_Logo.png: apesar de morar nesta pasta,
 # ela nao e um wallpaper -- e a arte-mestre (1536x1024) da qual os wallpapers
@@ -147,7 +148,6 @@ for WP in backgrounds/*.png; do
     [ "$(basename "$WP")" = "CapivaraOS_Logo.png" ] && continue
     install -m 0644 "$WP" %{buildroot}%{_datadir}/backgrounds/capivaraos/
 done
-install -m 0644 backgrounds/CREDITOS.txt %{buildroot}%{_datadir}/backgrounds/capivaraos/
 
 # ── Pixmaps ──────────────────────────────────────────────────────────────────
 install -d %{buildroot}%{_datadir}/pixmaps
@@ -473,7 +473,7 @@ cat > %{buildroot}%{_sysconfdir}/xdg/xfce4/xinitrc.d/50-capivaraos-wallpaper.sh 
 # Gera o backdrop do xfdesktop para os monitores conectados ANTES do xfdesktop
 # subir, para o wallpaper CapivaraOS aparecer ja no primeiro frame. Ver
 # capivaraos-branding.spec (BUG-35).
-WP=/usr/share/backgrounds/capivaraos/capivaraos-desktop-roxo-branco.png
+WP=/usr/share/backgrounds/capivaraos/capivaraos-wp-moonlight.png
 CFG="$HOME/.config/xfce4/xfconf/xfce-perchannel-xml"
 XML="$CFG/xfce4-desktop.xml"
 
@@ -559,12 +559,12 @@ if [ -f %{_sysconfdir}/lightdm/lightdm-gtk-greeter.conf ]; then
     sed -i \
         -e '/^background=/d' \
         -e '/^user-background=/d' \
-        -e '/^\[greeter\]/a background=%{_datadir}/backgrounds/capivaraos/capivaraos-desktop-roxo-branco.png\nuser-background=false' \
+        -e '/^\[greeter\]/a background=%{_datadir}/backgrounds/capivaraos/capivaraos-wp-moonlight.png\nuser-background=false' \
         %{_sysconfdir}/lightdm/lightdm-gtk-greeter.conf
 else
     cat > %{_sysconfdir}/lightdm/lightdm-gtk-greeter.conf << EOF
 [greeter]
-background=%{_datadir}/backgrounds/capivaraos/capivaraos-desktop-roxo-branco.png
+background=%{_datadir}/backgrounds/capivaraos/capivaraos-wp-moonlight.png
 user-background=false
 EOF
 fi
@@ -607,7 +607,7 @@ plymouth-set-default-theme capivaraos >/dev/null 2>&1 || true
 # nasce com o fundo CapivaraOS, sem depender de xfconf/monitor/xrandr em
 # runtime. Feito em %posttrans (não %files) porque esses caminhos podem ser de
 # outro pacote -- evita conflito de arquivo no dnf, mesmo motivo do os-release.
-CAPIVARA_WP=%{_datadir}/backgrounds/capivaraos/capivaraos-desktop-roxo-branco.png
+CAPIVARA_WP=%{_datadir}/backgrounds/capivaraos/capivaraos-wp-moonlight.png
 if [ -f "$CAPIVARA_WP" ]; then
     install -d %{_datadir}/backgrounds/xfce
     for _def in xfce-verticals.png xfce-stripes.png xfce-teal.png; do
@@ -712,7 +712,6 @@ for kver in $(ls /lib/modules 2>/dev/null); do
 done
 
 %files
-%license backgrounds/CREDITOS.txt
 %{_datadir}/backgrounds/capivaraos/
 %{_datadir}/pixmaps/capivaraos.png
 %{_datadir}/pixmaps/capivaraos-logo.png
@@ -740,6 +739,12 @@ done
   Versionamento pre-release "0.N.alphaN.pup"; "2.0.0-1.pup" reservado p/ o
   lancamento publico conjunto das 3 spins (PROD-61). SMOKE BUILD p/ levantar
   quebras (Xfce/LightDM no F45, Anaconda 45) — NAO cortar ISO publica do F45 antes do GA.
+- Wallpapers da marca 2.x (PROD-120): adota o conjunto da marca compartilhado
+  com Marsh/Snout (moonlight/sunset/dev/comics/abstract-1..4), padrao "Luar"
+  (moonlight) no desktop e no LightDM. REMOVE o conjunto proprio do 1.x (fotos
+  de capivaras CC BY-SA do Wikimedia + variantes de cor solida + CREDITOS.txt +
+  os scripts regen-*-wallpapers.sh); tags CC-BY-SA saem da License. Os
+  wallpapers padrao extras seguem vindo do xfce-backgrounds da base.
 
 * Mon Aug 17 2026 CapivaraOS Project <capivaraos-bot@users.noreply.github.com> - 1.1.8-1
 - Corrige a FALHA de instalacao em UEFI no passo do bootloader (BUG-38):

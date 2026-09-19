@@ -15,10 +15,9 @@ capivaraos-pup/
 ├── README.md                    # Este arquivo
 ├── build-all.sh                 # Automatiza todos os passos abaixo
 ├── branding/                    # Assets de identidade visual (fonte para o RPM)
-│   ├── backgrounds/              # Wallpapers + CREDITOS.txt (CC BY/CC BY-SA)
+│   ├── backgrounds/              # Wallpapers da marca 2.x (moonlight/sunset/dev/comics/abstract)
 │   ├── icons/                    # Logos do CapivaraOS (compartilhados com a Marsh)
-│   ├── skel/.config/             # Wallpaper padrão do Xfce (xfconf)
-│   └── regen-photo-wallpapers.sh # Regera os wallpapers fotográficos
+│   └── skel/.config/             # Wallpaper padrão do Xfce (xfconf)
 ├── kickstart/
 │   ├── capivaraos-pup.ks         # Kickstart principal (ponto de entrada)
 │   ├── capivaraos-post-branding.ks  # %post: idioma/atalho de instalação
@@ -51,30 +50,19 @@ personalização do Pup foca em: wallpapers, tela de boot, tela de login,
 
 ### Wallpapers
 
-- 7 planos de fundo de **cor sólida com a logo do CapivaraOS no centro**
-  (azul, verde, roxo, preto, e variantes com logo branca), reaproveitados da
-  spin Marsh — mesma identidade visual em todas as spins do CapivaraOS.
-  **Importante**: foram reconvertidos para PNG 8-bit/canal (os arquivos da
-  Marsh são 16-bit/canal). O `xfdesktop` (Xfce) falha silenciosamente ao
-  carregar PNG 16-bit — mantém a última imagem válida na tela sem nenhum
-  erro visível — enquanto o Plasma (KDE, usado na Marsh) tolera o formato.
-  Confirmado em teste real (GNOME Boxes/QXL). Se algum desses arquivos for
-  resincronizado a partir da Marsh no futuro, reconverta com
-  `magick arquivo.png -depth 8 arquivo.png` antes de usar nesta spin.
-- 6 planos de fundo **fotográficos de capivaras com filhotes na
-  natureza**, obtidos no Wikimedia Commons sob licenças livres (CC BY 2.0
-  / CC BY-SA 3.0 / CC BY-SA 4.0), com a logo do CapivaraOS aplicada no
-  canto inferior direito e o crédito do autor no canto inferior esquerdo.
-  Ver `branding/backgrounds/CREDITOS.txt` para a lista completa de fontes,
-  autores e licenças (verificadas via API do Wikimedia Commons,
-  `AttributionRequired=true` para todas).
+- **8 wallpapers da marca do CapivaraOS 2.x**, os mesmos das spins Marsh e
+  Snout — mesma identidade visual em todas as spins: *moonlight* (Luar,
+  padrão), *sunset*, *dev*, *comics* e quatro *abstract*. Instalados em
+  `/usr/share/backgrounds/capivaraos/` e visíveis diretamente no seletor de
+  papel de parede do `xfdesktop`. O padrão é o **Luar** (moonlight), aplicado
+  ao desktop e à tela de login LightDM (via `skel`/`%posttrans`).
+- Os wallpapers "padrão" adicionais continuam vindo do pacote
+  `xfce-backgrounds` da base.
 
-Para regenerar os wallpapers fotográficos a partir das fotos originais:
-
-```bash
-cd branding
-./regen-photo-wallpapers.sh
-```
+> A série 1.x usava um conjunto próprio (planos sólidos com a logo + fotos de
+> capivaras do Wikimedia Commons sob CC BY-SA). A partir da série 2.x esse
+> conjunto foi **removido** em favor dos wallpapers da marca compartilhados
+> entre as três spins.
 
 ## Pré-requisitos (máquina de build, Fedora 44 x86_64)
 
