@@ -57,7 +57,7 @@ wallpapers da marca do CapivaraOS 2.x (moonlight/sunset/dev/comics/abstract),
 compartilhado com as demais spins (Marsh e Snout), padrão "Luar" (moonlight);
 conjunto de ícones "capivaraos-logo" e "capivaraos-full-logo", tema Plymouth de
 boot, tela de login LightDM, /etc/os-release, /etc/issue e wallpaper padrão do
-Xfce. Os wallpapers padrão adicionais continuam vindo do pacote xfce-backgrounds
+Xfce. Os wallpapers padrão adicionais continuam vindo do pacote f45-backgrounds-xfce
 da base.
 
 %prep
@@ -667,7 +667,7 @@ systemctl --global enable capivaraos-update-notify.timer >/dev/null 2>&1 || true
 # (/usr/share/backgrounds/xfce/xfce-verticals|stripes|teal.png) como rede de
 # segurança contra o fallback do xfdesktop no 1º login. Na série 2.x isso foi
 # REMOVIDO: o dono quer os wallpapers padrão do Xfce disponíveis no seletor
-# (pacote xfce-backgrounds entra no %packages), então NÃO os sobrescrevemos. O
+# (pacote f45-backgrounds-xfce entra no %packages), então NÃO os sobrescrevemos. O
 # padrão "Luar" continua garantido pela config de backdrop — /etc/skel
 # (xfce4-desktop.xml, monitor0) + o xinitrc.d 50-capivaraos-wallpaper.sh, que
 # grava o backdrop do(s) monitor(es) REAIS (via sysfs) ANTES do xfdesktop subir
@@ -795,7 +795,7 @@ done
 * Sun Sep 20 2026 CapivaraOS Project <capivaraos-bot@users.noreply.github.com> - 2.0.0-0.5.alpha5
 - Novo wallpaper da marca "serie2" (capivaraos-wp-serie2.png, 3840x2160, 8-bit)
   somado ao conjunto — o hero verde da Série 2. Também vai p/ Marsh/Snout 2.x.
-- Wallpapers PADRÃO do Xfce agora disponíveis no seletor: pacote xfce-backgrounds
+- Wallpapers PADRÃO do Xfce agora disponíveis no seletor: pacote f45-backgrounds-xfce
   no %packages do kickstart e REMOVIDO o clobber do %posttrans que sobrescrevia os
   3 defaults do Xfce (xfce-verticals/stripes/teal) com o nosso PNG. O padrão
   "Luar" segue garantido por /etc/skel + o xinitrc.d 50-capivaraos-wallpaper.sh
@@ -848,7 +848,7 @@ done
   (moonlight) no desktop e no LightDM. REMOVE o conjunto proprio do 1.x (fotos
   de capivaras CC BY-SA do Wikimedia + variantes de cor solida + CREDITOS.txt +
   os scripts regen-*-wallpapers.sh); tags CC-BY-SA saem da License. Os
-  wallpapers padrao extras seguem vindo do xfce-backgrounds da base.
+  wallpapers padrao extras seguem vindo do f45-backgrounds-xfce da base.
 
 * Mon Aug 17 2026 CapivaraOS Project <capivaraos-bot@users.noreply.github.com> - 1.1.8-1
 - Corrige a FALHA de instalacao em UEFI no passo do bootloader (BUG-38):

@@ -98,7 +98,7 @@ dejavu-fonts-all
 # ===== WALLPAPERS PADRÃO DO XFCE =====
 # Além dos wallpapers da marca (pacote capivaraos-branding), embarcamos o
 # conjunto padrão do Xfce para o usuário poder escolher no seletor de fundo.
-xfce-backgrounds
+f45-backgrounds-xfce
 
 # ===== COS DEV CENTER (mínimo) =====
 # App de onboarding do 1o boot (Xfce/GTK), versão enxuta (PROD-122): cards de
