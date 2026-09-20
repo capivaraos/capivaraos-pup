@@ -138,7 +138,9 @@ class MainWindow(Adw.ApplicationWindow):
         self.card_ai = Card(
             "IA local",
             ("Rode modelos de IA na sua máquina, sem nuvem: Ollama (motor), "
-             "Alpaca (interface) e a extensão Continue no VSCodium."),
+             "Alpaca (interface) e a extensão Continue no VSCodium. No Fedora 45 "
+             "o Ollama inclui a pilha AMD/ROCm (~6 GB); instale no sistema em "
+             "disco, não na sessão live."),
             "system-run-symbolic", "Instalar IA local",
             self._install_ai, open_text="Abrir o Alpaca",
             on_open=self.backend.open_ai_local)

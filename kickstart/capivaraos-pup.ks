@@ -95,6 +95,11 @@ rsync
 liberation-fonts
 dejavu-fonts-all
 
+# ===== WALLPAPERS PADRÃO DO XFCE =====
+# Além dos wallpapers da marca (pacote capivaraos-branding), embarcamos o
+# conjunto padrão do Xfce para o usuário poder escolher no seletor de fundo.
+xfce-backgrounds
+
 # ===== COS DEV CENTER (mínimo) =====
 # App de onboarding do 1o boot (Xfce/GTK), versão enxuta (PROD-122): cards de
 # IA local, ferramentas de dev e GitHub CLI. Vem do repo local desta spin.
