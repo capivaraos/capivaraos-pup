@@ -81,5 +81,11 @@ if [ "$has_openwebui" -eq 1 ]; then
     fi
 fi
 
-echo ">>> Ferramentas de dev concluídas."
+if [ "$rc" -eq 0 ]; then
+    echo ">>> Ferramentas de dev concluídas."
+else
+    echo ">>> Ferramentas de dev: ALGUNS itens falharam (veja os avisos acima)."
+    echo "    Numa sessão LIVE o espaço é limitado; itens grandes (VS Code, Docker,"
+    echo "    Open WebUI) instalam melhor no sistema já instalado em disco."
+fi
 exit "$rc"

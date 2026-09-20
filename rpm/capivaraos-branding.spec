@@ -27,7 +27,7 @@ Version:        2.0.0
 # "2.0.0-1.<dist>.pup" fica RESERVADO para o LANCAMENTO PUBLICO conjunto das
 # 3 spins (ver PROD-61). NEVRA 2.0.0-0.1.alpha1 < 2.0.0-1, entao o dnf nunca
 # atualiza "pra tras". Builds de dev saem rotulados "preview".
-Release:        0.4.alpha4%{?dist}.pup
+Release:        0.5.alpha5%{?dist}.pup
 Summary:        Identidade visual, wallpapers e branding padrão do CapivaraOS Pup 2.0.0 (preview)
 
 License:        GPL-3.0-or-later AND LicenseRef-CapivaraOS-Trademark
@@ -662,38 +662,29 @@ systemctl enable capivaraos-snapper-setup.service >/dev/null 2>&1 || true
 # quando ha nova versao E o capivaraos-upgrade esta presente (no-op ate la).
 systemctl --global enable capivaraos-update-notify.timer >/dev/null 2>&1 || true
 
-# ── Wallpaper padrão do xfdesktop (correção definitiva do BUG-35) ────────────
-# O xfdesktop, quando NÃO há config de backdrop para o nome real do monitor
-# ativo (caso do 1º login, live e instalado -- o /etc/skel só cobre "monitor0"
-# e o script auxiliar não descobria o monitor real porque o xrandr não está
-# instalado), cai no arquivo de fundo "default" compilado no binário. Nesta
-# build do xfdesktop esses defaults são /usr/share/backgrounds/xfce/
-# xfce-verticals.png, xfce-stripes.png e xfce-teal.png -- que NEM EXISTIAM como
-# .png (só como .svg), deixando o comportamento errático (aparecia o fundo do
-# Fedora). Gravamos o nosso PNG por cima dos três: assim o PRIMEIRO login já
-# nasce com o fundo CapivaraOS, sem depender de xfconf/monitor/xrandr em
-# runtime. Feito em %posttrans (não %files) porque esses caminhos podem ser de
-# outro pacote -- evita conflito de arquivo no dnf, mesmo motivo do os-release.
-CAPIVARA_WP=%{_datadir}/backgrounds/capivaraos/capivaraos-wp-moonlight.png
-if [ -f "$CAPIVARA_WP" ]; then
-    install -d %{_datadir}/backgrounds/xfce
-    for _def in xfce-verticals.png xfce-stripes.png xfce-teal.png; do
-        cp -f "$CAPIVARA_WP" %{_datadir}/backgrounds/xfce/"$_def" 2>/dev/null || true
-    done
-fi
+# ── Wallpaper padrão do xfdesktop (BUG-35) ───────────────────────────────────
+# ATÉ a série 1.x, gravávamos o nosso PNG por cima dos defaults do Xfce
+# (/usr/share/backgrounds/xfce/xfce-verticals|stripes|teal.png) como rede de
+# segurança contra o fallback do xfdesktop no 1º login. Na série 2.x isso foi
+# REMOVIDO: o dono quer os wallpapers padrão do Xfce disponíveis no seletor
+# (pacote xfce-backgrounds entra no %packages), então NÃO os sobrescrevemos. O
+# padrão "Luar" continua garantido pela config de backdrop — /etc/skel
+# (xfce4-desktop.xml, monitor0) + o xinitrc.d 50-capivaraos-wallpaper.sh, que
+# grava o backdrop do(s) monitor(es) REAIS (via sysfs) ANTES do xfdesktop subir
+# — que é a correção definitiva do BUG-35 (o clobber era só um extra).
 
 # /etc/os-release, /etc/issue, /etc/issue.net (fedora-release-common):
 # escritos aqui (em vez de %files) para evitar conflito de arquivo no dnf.
 cat > %{_sysconfdir}/os-release << 'EOF'
 NAME="CapivaraOS"
-VERSION="Pup 2.0.0 (alpha4, preview)"
+VERSION="Pup 2.0.0 (alpha5, preview)"
 RELEASE_TYPE=stable
 ID=capivaraos
 ID_LIKE=fedora
 VERSION_ID=45
 VERSION_CODENAME=pup
 PLATFORM_ID="platform:f45"
-PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha4, preview)"
+PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha5, preview)"
 ANSI_COLOR="0;32"
 LOGO=capivaraos-full-logo
 CPE_NAME="cpe:/o:capivaraos:capivaraos:45"
@@ -706,17 +697,17 @@ REDHAT_BUGZILLA_PRODUCT="Fedora"
 REDHAT_BUGZILLA_PRODUCT_VERSION=45
 REDHAT_SUPPORT_PRODUCT="Fedora"
 REDHAT_SUPPORT_PRODUCT_VERSION=45
-VARIANT="Pup 2.0.0 (alpha4, preview)"
+VARIANT="Pup 2.0.0 (alpha5, preview)"
 VARIANT_ID=pup
 EOF
 
 cat > %{_sysconfdir}/issue << 'EOF'
-CapivaraOS Pup 2.0.0 (alpha4, preview) \n \l
+CapivaraOS Pup 2.0.0 (alpha5, preview) \n \l
 
 EOF
 
 cat > %{_sysconfdir}/issue.net << 'EOF'
-CapivaraOS Pup 2.0.0 (alpha4, preview)
+CapivaraOS Pup 2.0.0 (alpha5, preview)
 EOF
 
 # ── Reaplica os-release apos qualquer atualizacao futura do sistema ────────
@@ -740,14 +731,14 @@ EOF
 grep -q '^NAME="CapivaraOS"' %{_prefix}/lib/os-release 2>/dev/null && exit 0
 cat > %{_sysconfdir}/os-release << 'EOF'
 NAME="CapivaraOS"
-VERSION="Pup 2.0.0 (alpha4, preview)"
+VERSION="Pup 2.0.0 (alpha5, preview)"
 RELEASE_TYPE=stable
 ID=capivaraos
 ID_LIKE=fedora
 VERSION_ID=45
 VERSION_CODENAME=pup
 PLATFORM_ID="platform:f45"
-PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha4, preview)"
+PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha5, preview)"
 ANSI_COLOR="0;32"
 LOGO=capivaraos-full-logo
 CPE_NAME="cpe:/o:capivaraos:capivaraos:45"
@@ -760,17 +751,17 @@ REDHAT_BUGZILLA_PRODUCT="Fedora"
 REDHAT_BUGZILLA_PRODUCT_VERSION=45
 REDHAT_SUPPORT_PRODUCT="Fedora"
 REDHAT_SUPPORT_PRODUCT_VERSION=45
-VARIANT="Pup 2.0.0 (alpha4, preview)"
+VARIANT="Pup 2.0.0 (alpha5, preview)"
 VARIANT_ID=pup
 EOF
 
 cat > %{_sysconfdir}/issue << 'EOF'
-CapivaraOS Pup 2.0.0 (alpha4, preview) \n \l
+CapivaraOS Pup 2.0.0 (alpha5, preview) \n \l
 
 EOF
 
 cat > %{_sysconfdir}/issue.net << 'EOF'
-CapivaraOS Pup 2.0.0 (alpha4, preview)
+CapivaraOS Pup 2.0.0 (alpha5, preview)
 EOF
 
 for kver in $(ls /lib/modules 2>/dev/null); do
@@ -801,6 +792,15 @@ done
 %{_userunitdir}/capivaraos-update-notify.timer
 
 %changelog
+* Sun Sep 20 2026 CapivaraOS Project <capivaraos-bot@users.noreply.github.com> - 2.0.0-0.5.alpha5
+- Novo wallpaper da marca "serie2" (capivaraos-wp-serie2.png, 3840x2160, 8-bit)
+  somado ao conjunto — o hero verde da Série 2. Também vai p/ Marsh/Snout 2.x.
+- Wallpapers PADRÃO do Xfce agora disponíveis no seletor: pacote xfce-backgrounds
+  no %packages do kickstart e REMOVIDO o clobber do %posttrans que sobrescrevia os
+  3 defaults do Xfce (xfce-verticals/stripes/teal) com o nosso PNG. O padrão
+  "Luar" segue garantido por /etc/skel + o xinitrc.d 50-capivaraos-wallpaper.sh
+  (correção definitiva do BUG-35; o clobber era só rede de segurança extra).
+
 * Sat Sep 19 2026 CapivaraOS Project <capivaraos-bot@users.noreply.github.com> - 2.0.0-0.4.alpha4
 - Notificador de atualizacao leve no Xfce (PROD-123): como o Xfce nao tem GNOME
   Software, este e o aviso proprio de "nova versao". Sem daemon: um timer de

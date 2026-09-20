@@ -1,6 +1,6 @@
 Name:           capivara-central
 Version:        0.2.0
-Release:        1%{?dist}.pup
+Release:        2%{?dist}.pup
 Summary:        COS Dev Center (mínimo) — onboarding do CapivaraOS Pup
 
 # App próprio (GPLv3); o ícone "COS Dev" (tile CapivaraOS) é marca reservada.
@@ -82,6 +82,17 @@ install -Dm0644 data/org.capivaraos.Central-autostart.desktop \
 %{_sysconfdir}/skel/.config/autostart/org.capivaraos.Central.desktop
 
 %changelog
+* Sun Sep 20 2026 CapivaraOS Bot <capivaraos-bot@users.noreply.github.com> - 0.2.0-2.pup
+- Novo ícone do app "cos dev by CapivaraOS" (fundo transparente) nos 5 tamanhos;
+  origem canônica em brand-assets/cos-dev-icon.png (reutilizar no Marsh/Snout 2.x).
+- Card "IA local": avisa que no Fedora 45 o Ollama inclui a pilha AMD/ROCm
+  (~6 GB) e recomenda instalar no sistema em disco (não na sessão live).
+- install-ai-system: comentário corrigido p/ a realidade do F45 (ollama puxa ROCm).
+- setup-devtools: não imprime mais ">>> concluídas" quando algum item falha
+  (mensagem honesta + dica de que itens grandes instalam melhor em disco). O
+  rc=1 vinha do passo de sistema (VS Code/Docker) — típico em sessão live sem
+  espaço.
+
 * Sat Sep 19 2026 CapivaraOS Bot <capivaraos-bot@users.noreply.github.com> - 0.2.0-1.pup
 - COS Dev Center MÍNIMO para o Pup (Xfce) — PROD-122. Versão enxuta do port do
   Snout (PROD-117): mantém só os 3 cards essenciais — IA local, Ferramentas de
