@@ -19,15 +19,16 @@ selinux --enforcing
 firewall --enabled --service=mdns
 xconfig --startxonboot
 zerombr
-# NOTA CapivaraOS: tamanho aumentado de 5120 (padrão upstream) para 8192
-# (8 GiB) para acomodar o conjunto de pacotes do CapivaraOS Pup (Xfce +
-# apps essenciais + LibreOffice Calc/Writer — bem mais leve que o conjunto
-# KDE+Office completo da spin Marsh, que precisa de 16 GiB aqui). É o
-# tamanho do filesystem de trabalho antes de ser convertido para squashfs;
-# a ISO final fica bem menor. Ajuste para baixo após um build de validação
-# se quiser reduzir ainda mais.
+# NOTA CapivaraOS: tamanho do filesystem de TRABALHO (vira squashfs comprimido
+# depois — NÃO afeta o tamanho da ISO final). Era 8192 (8 GiB) na série 1.x e
+# CABIA; na série 2.x (Fedora 45) o conjunto passou de 8 GiB e o compose
+# falhava com "precisa de NNN MB a mais no /" (PayloadInstallationError). O que
+# cresceu: o COS Dev mínimo puxa gtk4+libadwaita+podman+flatpak e o
+# btrfs-assistant (snapshots) arrasta a pilha Qt6 inteira no Xfce (o Marsh já
+# tem Qt "de graça" por ser KDE). Subimos para 16384 (16 GiB), igual ao Snout,
+# com folga sobre o pico observado (~8,5 GiB instalados). A ISO final segue leve.
 clearpart --all
-part / --size 8192 --fstype ext4
+part / --size 16384 --fstype ext4
 services --enabled=NetworkManager,ModemManager --disabled=sshd
 network --bootproto=dhcp --device=link --activate
 # NOTA CapivaraOS: "rootpw --lock --iscrypted locked" (original upstream) faz o
