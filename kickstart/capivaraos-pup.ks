@@ -44,7 +44,8 @@ timezone America/Sao_Paulo --utc
 network --hostname=capivaraos
 
 # NOTA: tamanho do filesystem de trabalho ("part /") definido em
-# upstream/fedora-live-base.ks (8192 = 8 GiB) — não redeclarado aqui para
+# upstream/fedora-live-base.ks (16384 = 16 GiB na série 2.x; era 8 GiB no 1.x e
+# estourou com COS Dev + btrfs-assistant/Qt6) — não redeclarado aqui para
 # evitar duas diretivas "part /" conflitantes no kickstart achatado.
 
 # =============================================================================
