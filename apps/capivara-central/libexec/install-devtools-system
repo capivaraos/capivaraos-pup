@@ -37,13 +37,35 @@ EOF
 
 install_docker() {
     echo ">>> Instalando o Docker CE (repo oficial do Docker)"
-    dnf -y install dnf-plugins-core || true
-    # dnf5 (Fedora 41+) usa 'config-manager addrepo'; mantemos um fallback.
-    dnf config-manager addrepo \
-        --from-repofile=https://download.docker.com/linux/fedora/docker-ce.repo 2>/dev/null \
-        || dnf config-manager --add-repo \
-             https://download.docker.com/linux/fedora/docker-ce.repo 2>/dev/null \
-        || echo "AVISO: não consegui adicionar o repo do Docker (talvez já exista)."
+    # O baseurl padrão do docker-ce.repo usa $releasever, mas o Docker costuma
+    # DEMORAR a publicar pacotes para um Fedora recém-lançado — no F45 Beta o
+    # diretório /linux/fedora/45/ retorna 404. Descobrimos a versão de Fedora
+    # mais recente que o Docker JÁ publicou (os pacotes do F-anterior funcionam
+    # no atual) e fixamos o baseurl nela. Se nenhuma responder, avisamos e
+    # seguimos (não derruba o card — é indisponibilidade upstream, transitória).
+    local fed arch ver="" n
+    fed="$(rpm -E %fedora 2>/dev/null || echo 45)"
+    arch="$(rpm -E %{_arch} 2>/dev/null || echo x86_64)"
+    for n in "$fed" $((fed-1)) $((fed-2)) $((fed-3)); do
+        if curl -fsI --max-time 15 \
+            "https://download.docker.com/linux/fedora/${n}/${arch}/stable/repodata/repomd.xml" \
+            >/dev/null 2>&1; then ver="$n"; break; fi
+    done
+    if [ -z "$ver" ]; then
+        echo "AVISO: o Docker ainda não publicou pacotes para o Fedora ${fed}"
+        echo "       (comum logo após um lançamento do Fedora). Tente de novo mais"
+        echo "       tarde; por ora, use o podman (já incluído). Pulando o Docker."
+        return 0
+    fi
+    [ "$ver" = "$fed" ] || echo "  (Docker ainda sem repo p/ Fedora ${fed}; usando o do Fedora ${ver})"
+    cat > /etc/yum.repos.d/docker-ce.repo <<EOF
+[docker-ce-stable]
+name=Docker CE Stable - Fedora ${ver}
+baseurl=https://download.docker.com/linux/fedora/${ver}/${arch}/stable
+enabled=1
+gpgcheck=1
+gpgkey=https://download.docker.com/linux/fedora/gpg
+EOF
     dnf install -y docker-ce docker-ce-cli containerd.io \
                    docker-buildx-plugin docker-compose-plugin \
         || { echo "ERRO: falha ao instalar o Docker CE."; return 1; }

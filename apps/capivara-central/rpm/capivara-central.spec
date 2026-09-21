@@ -1,6 +1,6 @@
 Name:           capivara-central
 Version:        0.2.0
-Release:        2%{?dist}.pup
+Release:        3%{?dist}.pup
 Summary:        COS Dev Center (mínimo) — onboarding do CapivaraOS Pup
 
 # App próprio (GPLv3); o ícone "COS Dev" (tile CapivaraOS) é marca reservada.
@@ -82,6 +82,19 @@ install -Dm0644 data/org.capivaraos.Central-autostart.desktop \
 %{_sysconfdir}/skel/.config/autostart/org.capivaraos.Central.desktop
 
 %changelog
+* Mon Sep 21 2026 CapivaraOS Bot <capivaraos-bot@users.noreply.github.com> - 0.2.0-3.pup
+- Ícone do app: corrige os "quadradinhos" (restos do xadrez do JPEG de origem)
+  que sobravam nos cantos arredondados — máscara com cantos mais internos (raio
+  150, bounds 90,84→946,952) para o arco cair no branco da tile, sem xadrez.
+  Verificado nos tamanhos pequenos (48/64px). Master brand-assets/cos-dev-icon.png
+  atualizado (reaproveitar no Marsh/Snout 2.x).
+- Ferramentas de dev/Docker: corrige a falha real no F45 (rc=1). O repo do Docker
+  NÃO tem pacotes p/ Fedora 45 ainda (/linux/fedora/45/ = 404; F44/F43 = 200) e o
+  Fedora não empacota docker-ce. Agora o install-docker descobre a versão de
+  Fedora mais recente já publicada pelo Docker e fixa o baseurl nela (pacotes do
+  F-anterior funcionam); se nenhuma responder, avisa e segue (não derruba o card —
+  é indisponibilidade upstream). Revisar no GA do F45.
+
 * Sun Sep 20 2026 CapivaraOS Bot <capivaraos-bot@users.noreply.github.com> - 0.2.0-2.pup
 - Novo ícone do app "cos dev by CapivaraOS" (fundo transparente) nos 5 tamanhos;
   origem canônica em brand-assets/cos-dev-icon.png (reutilizar no Marsh/Snout 2.x).
