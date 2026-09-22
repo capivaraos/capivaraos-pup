@@ -226,10 +226,12 @@ class MainWindow(Adw.ApplicationWindow):
              ("cline", "Cline — IA agentic no editor (code/codium)"),
              ("openwebui", "Open WebUI — chat web do Ollama (podman)"),
              ("docker", "Docker CE — containers")],
-            "Instalando ferramentas de dev", self.backend.install_dev_tools)
+            "Instalando ferramentas de dev", self.backend.install_dev_tools,
+            installed=self.backend.installed_dev_tool_keys())
 
-    # ---- Diálogo de seleção múltipla (trilhas / ferramentas) -------------
-    def _selection_dialog(self, title, subtitle, items, progress_title, run):
+    # ---- Diálogo de seleção múltipla (ferramentas) -----------------------
+    def _selection_dialog(self, title, subtitle, items, progress_title, run,
+                          installed=None):
         dialog = Adw.Dialog(title=title)
         dialog.set_content_width(460)
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12,
@@ -238,13 +240,20 @@ class MainWindow(Adw.ApplicationWindow):
         lbl = Gtk.Label(label=subtitle, wrap=True, xalign=0.0)
         box.append(lbl)
 
+        installed = installed or set()
         checks = {}
         group = Adw.PreferencesGroup()
         for key, label in items:
             row = Adw.ActionRow(title=label)
             chk = Gtk.CheckButton(valign=Gtk.Align.CENTER)
             row.add_prefix(chk)
-            row.set_activatable_widget(chk)
+            if key in installed:
+                # Já instalado: pré-marcado e travado (não reinstala).
+                chk.set_active(True)
+                chk.set_sensitive(False)
+                row.set_subtitle("já instalado")
+            else:
+                row.set_activatable_widget(chk)
             checks[key] = chk
             group.add(row)
         box.append(group)
@@ -253,13 +262,17 @@ class MainWindow(Adw.ApplicationWindow):
         install.add_css_class("suggested-action")
         install.set_sensitive(False)
 
+        # Só contam/instalam os itens NOVOS (não os já instalados).
         def on_toggle(*_a):
-            install.set_sensitive(any(c.get_active() for c in checks.values()))
-        for c in checks.values():
-            c.connect("toggled", on_toggle)
+            install.set_sensitive(
+                any(c.get_active() for k, c in checks.items() if k not in installed))
+        for k, c in checks.items():
+            if k not in installed:
+                c.connect("toggled", on_toggle)
 
         def on_install(*_a):
-            picks = [k for k, c in checks.items() if c.get_active()]
+            picks = [k for k, c in checks.items()
+                     if c.get_active() and k not in installed]
             dialog.close()
             self._open_progress(progress_title)
             run(picks)
