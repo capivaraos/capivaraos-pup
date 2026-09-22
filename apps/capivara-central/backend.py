@@ -21,8 +21,9 @@ from gi.repository import Gio, GLib, GObject  # noqa: E402
 # App-id do Alpaca no Flathub (interface gráfica da IA local).
 ALPACA_APP_ID = "com.jeffser.Alpaca"
 
-# Itens do card "Ferramentas de dev".
-DEV_TOOLS = ("vscode", "cline", "openwebui", "docker")
+# Itens do card "Ferramentas de dev". VSCodium é o editor recomendado da estação
+# (FOSS, Open VSX) — a IA no editor (Cline/Continue) instala limpo nele.
+DEV_TOOLS = ("vscodium", "vscode", "cline", "openwebui", "docker")
 
 # Diretório dos helpers. Em produção é /usr/libexec/capivara-central (instalado
 # pelo RPM); em desenvolvimento cai para a pasta libexec/ ao lado deste arquivo.
@@ -124,6 +125,8 @@ class Backend(GObject.Object):
         """Abre um app instalado a partir da seção 'Instalados' do catálogo."""
         if kind == "alpaca":
             self.open_ai_local()
+        elif kind == "vscodium":
+            _spawn_detached(["codium"])
         elif kind == "vscode":
             _spawn_detached(["code"])
         elif kind == "openwebui":
@@ -257,6 +260,9 @@ class Backend(GObject.Object):
         if self._alpaca_installed():
             apps.append({"kind": "alpaca", "name": "Alpaca",
                          "icon": "com.jeffser.Alpaca", "launch": True})
+        if shutil.which("codium"):
+            apps.append({"kind": "vscodium", "name": "VSCodium",
+                         "icon": "vscodium", "launch": True})
         if shutil.which("code"):
             apps.append({"kind": "vscode", "name": "VS Code",
                          "icon": "code", "launch": True})
@@ -273,6 +279,8 @@ class Backend(GObject.Object):
 
     def installed_dev_tools(self) -> str:
         got = []
+        if shutil.which("codium"):
+            got.append("VSCodium")
         if shutil.which("code"):
             got.append("VS Code")
         if self._cline_installed():
@@ -301,6 +309,8 @@ class Backend(GObject.Object):
         """Chaves de DEV_TOOLS já instaladas — para o diálogo pré-marcar e
         travar esses itens e só instalar os NOVOS."""
         got = set()
+        if shutil.which("codium"):
+            got.add("vscodium")
         if shutil.which("code"):
             got.add("vscode")
         if self._cline_installed():

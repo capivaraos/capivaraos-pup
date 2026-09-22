@@ -22,8 +22,8 @@
   </action>
 
   <action id="org.capivaraos.central.install-devtools">
-    <description>Instalar ferramentas de desenvolvimento (VS Code, Docker CE)</description>
-    <description xml:lang="pt_BR">Instalar ferramentas de desenvolvimento (VS Code, Docker CE)</description>
+    <description>Instalar ferramentas de desenvolvimento (VSCodium, VS Code, Docker CE)</description>
+    <description xml:lang="pt_BR">Instalar ferramentas de desenvolvimento (VSCodium, VS Code, Docker CE)</description>
     <message>É necessário autenticar para instalar as ferramentas de dev de sistema.</message>
     <message xml:lang="pt_BR">É necessário autenticar para instalar as ferramentas de dev de sistema.</message>
     <defaults>
