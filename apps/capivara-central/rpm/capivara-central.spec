@@ -1,6 +1,6 @@
 Name:           capivara-central
 Version:        0.2.0
-Release:        6%{?dist}.pup
+Release:        7%{?dist}.pup
 Summary:        COS Dev Center (mínimo) — onboarding do CapivaraOS Pup
 
 # App próprio (GPLv3); o ícone "COS Dev" (tile CapivaraOS) é marca reservada.
@@ -82,6 +82,15 @@ install -Dm0644 data/org.capivaraos.Central-autostart.desktop \
 %{_sysconfdir}/skel/.config/autostart/org.capivaraos.Central.desktop
 
 %changelog
+* Tue Sep 22 2026 CapivaraOS Bot <capivaraos-bot@users.noreply.github.com> - 0.2.0-7.pup
+- Editor da estação = VSCodium (decisão do dono). O card "Ferramentas de dev"
+  passa a oferecer VSCodium (FOSS, Open VSX) como editor RECOMENDADO — a IA no
+  editor (Cline/Continue) instala limpo nele, sem a verificação de assinatura do
+  VS Code. VS Code segue como opção. install-devtools-system ganha install_vscodium
+  (repo download.vscodium.com, pacote 'codium', gpgkey verificada). Backend/UI:
+  vscodium em DEV_TOOLS, installed_dev_tool_keys/installed_dev_tools/installed_apps/
+  open_app; Cline já tenta o codium primeiro (0.2.0-6). Ação polkit atualizada.
+
 * Tue Sep 22 2026 CapivaraOS Bot <capivaraos-bot@users.noreply.github.com> - 0.2.0-6.pup
 - setup-devtools/Cline: corrige a lógica de mensagem — não diz mais "nenhum
   editor encontrado" quando o editor existe mas a instalação falhou. Tenta o

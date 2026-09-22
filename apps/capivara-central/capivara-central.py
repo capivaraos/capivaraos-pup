@@ -244,10 +244,11 @@ class MainWindow(Adw.ApplicationWindow):
             return
         self._selection_dialog(
             "Ferramentas de dev",
-            ("Escolha o que instalar. VS Code e Docker CE são de sistema (pedem "
+            ("Escolha o que instalar. Editores e Docker CE são de sistema (pedem "
              "senha); Cline e Open WebUI ficam no seu usuário."),
-            [("vscode", "VS Code (editor da Microsoft)"),
-             ("cline", "Cline — IA agentic no editor (code/codium)"),
+            [("vscodium", "VSCodium — editor FOSS (recomendado; a IA do editor roda nele)"),
+             ("vscode", "VS Code — editor da Microsoft (opcional)"),
+             ("cline", "Cline — IA agentic no editor (usa o VSCodium)"),
              ("openwebui", "Open WebUI — chat web do Ollama (podman)"),
              ("docker", "Docker CE — containers")],
             "Instalando ferramentas de dev", self.backend.install_dev_tools,
