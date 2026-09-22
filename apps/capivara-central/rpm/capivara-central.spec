@@ -1,6 +1,6 @@
 Name:           capivara-central
 Version:        0.2.0
-Release:        5%{?dist}.pup
+Release:        6%{?dist}.pup
 Summary:        COS Dev Center (mínimo) — onboarding do CapivaraOS Pup
 
 # App próprio (GPLv3); o ícone "COS Dev" (tile CapivaraOS) é marca reservada.
@@ -82,6 +82,14 @@ install -Dm0644 data/org.capivaraos.Central-autostart.desktop \
 %{_sysconfdir}/skel/.config/autostart/org.capivaraos.Central.desktop
 
 %changelog
+* Tue Sep 22 2026 CapivaraOS Bot <capivaraos-bot@users.noreply.github.com> - 0.2.0-6.pup
+- setup-devtools/Cline: corrige a lógica de mensagem — não diz mais "nenhum
+  editor encontrado" quando o editor existe mas a instalação falhou. Tenta o
+  VSCodium primeiro (Open VSX, sem verificação de assinatura) e, se o VS Code
+  recusar o Cline por assinatura (comum em instalação nova/VM via CLI), dá aviso
+  ACIONÁVEL (instalar pela aba Extensões do VS Code, ou usar o VSCodium). Card
+  segue best-effort (Cline é por-usuário, não derruba os demais itens).
+
 * Tue Sep 22 2026 CapivaraOS Bot <capivaraos-bot@users.noreply.github.com> - 0.2.0-5.pup
 - Sessao LIVE: os cards (IA local, Ferramentas de dev, gh) agora DETECTAM a
   sessao de demonstracao (raiz overlay em RAM / /run/initramfs/live) e BLOQUEIAM
