@@ -40,16 +40,21 @@ fi
 if [ "$has_cline" -eq 1 ]; then
     echo ">>> Instalando a extensão Cline no editor"
     done_any=0
-    if command -v code >/dev/null 2>&1; then
-        code --install-extension saoudrizwan.claude-dev --force && done_any=1 \
-            || echo "AVISO: não consegui instalar o Cline no VS Code."
-    fi
+    found_editor=0
+    # VSCodium primeiro (Open VSX; não tem a verificação de assinatura do VS Code).
     if command -v codium >/dev/null 2>&1; then
+        found_editor=1
         codium --install-extension saoudrizwan.claude-dev --force && done_any=1 \
             || echo "AVISO: não consegui instalar o Cline no VSCodium."
     fi
-    [ "$done_any" -eq 1 ] \
-        || echo "AVISO: nenhum editor (code/codium) encontrado para o Cline."
+    if command -v code >/dev/null 2>&1; then
+        found_editor=1
+        code --install-extension saoudrizwan.claude-dev --force && done_any=1 \
+            || echo "AVISO: o VS Code recusou o Cline pela linha de comando (verificação de assinatura, comum em instalação nova/VM). Instale pelo próprio VS Code: aba Extensões (Ctrl+Shift+X) e procure 'Cline'. No VSCodium o COS Dev instala direto."
+    fi
+    if [ "$found_editor" -eq 0 ]; then
+        echo "AVISO: nenhum editor (code/codium) encontrado para o Cline."
+    fi
 fi
 
 # --- Open WebUI (chat web do Ollama) em container rootless via podman -------
