@@ -1,6 +1,6 @@
 Name:           capivara-central
 Version:        0.2.0
-Release:        4%{?dist}.pup
+Release:        5%{?dist}.pup
 Summary:        COS Dev Center (mínimo) — onboarding do CapivaraOS Pup
 
 # App próprio (GPLv3); o ícone "COS Dev" (tile CapivaraOS) é marca reservada.
@@ -82,6 +82,13 @@ install -Dm0644 data/org.capivaraos.Central-autostart.desktop \
 %{_sysconfdir}/skel/.config/autostart/org.capivaraos.Central.desktop
 
 %changelog
+* Tue Sep 22 2026 CapivaraOS Bot <capivaraos-bot@users.noreply.github.com> - 0.2.0-5.pup
+- Sessao LIVE: os cards (IA local, Ferramentas de dev, gh) agora DETECTAM a
+  sessao de demonstracao (raiz overlay em RAM / /run/initramfs/live) e BLOQUEIAM
+  cedo com um dialogo claro ("instale no disco primeiro"), em vez de baixar 1 GB
+  e falhar no meio com "Failed writing to disk"/ENOSPC. Backend: is_live_session().
+  No sistema instalado em disco nada muda (instala normal).
+
 * Tue Sep 22 2026 CapivaraOS Bot <capivaraos-bot@users.noreply.github.com> - 0.2.0-4.pup
 - Card "Ferramentas de dev": o diálogo agora PRÉ-MARCA e TRAVA os itens já
   instalados (mostra "já instalado") e só instala/habilita o botão para os NOVOS

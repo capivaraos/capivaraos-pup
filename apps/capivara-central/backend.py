@@ -283,6 +283,20 @@ class Backend(GObject.Object):
             got.append("Docker")
         return ", ".join(got)
 
+    @staticmethod
+    def is_live_session() -> bool:
+        """True numa sessão live do Fedora: o / é um overlay em RAM, com pouco
+        espaço — instalar ferramentas grandes (IA/ROCm, Open WebUI, VS Code)
+        falha no meio do download. No sistema instalado em disco, funciona."""
+        try:
+            if os.path.isdir("/run/initramfs/live"):
+                return True
+            r = subprocess.run(["findmnt", "-no", "FSTYPE", "/"],
+                               capture_output=True, text=True, timeout=5)
+            return r.stdout.strip() == "overlay"
+        except (OSError, subprocess.SubprocessError):
+            return False
+
     def installed_dev_tool_keys(self) -> set:
         """Chaves de DEV_TOOLS já instaladas — para o diálogo pré-marcar e
         travar esses itens e só instalar os NOVOS."""

@@ -211,13 +211,37 @@ class MainWindow(Adw.ApplicationWindow):
         self._open_progress(title)
         fn()
 
+    def _blocked_by_live(self) -> bool:
+        """Numa sessão live não há espaço p/ instalar as ferramentas — avisa e
+        bloqueia ANTES de baixar (evita falhar no meio com 'disk full'). Retorna
+        True se bloqueou."""
+        if not self.backend.is_live_session():
+            return False
+        dialog = Adw.AlertDialog(
+            heading="Você está na sessão de demonstração",
+            body=("Esta é a sessão live do CapivaraOS — ela roda da memória e tem "
+                  "pouco espaço, então baixar estas ferramentas (IA local, Docker, "
+                  "Open WebUI…) falharia no meio.\n\nInstale o CapivaraOS no disco "
+                  "(ícone “Instalar CapivaraOS” na área de trabalho) e abra o COS "
+                  "Dev no sistema instalado para adicioná-las."))
+        dialog.add_response("ok", "Entendi")
+        dialog.set_default_response("ok")
+        dialog.present(self)
+        return True
+
     def _install_ai(self):
+        if self._blocked_by_live():
+            return
         self._start("Instalando IA local", self.backend.install_ai_local)
 
     def _setup_gh(self):
+        if self._blocked_by_live():
+            return
         self._start("Configurando gh + pre-commit", self.backend.setup_gh)
 
     def _open_tools(self):
+        if self._blocked_by_live():
+            return
         self._selection_dialog(
             "Ferramentas de dev",
             ("Escolha o que instalar. VS Code e Docker CE são de sistema (pedem "
