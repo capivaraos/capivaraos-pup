@@ -282,3 +282,17 @@ class Backend(GObject.Object):
         if shutil.which("docker"):
             got.append("Docker")
         return ", ".join(got)
+
+    def installed_dev_tool_keys(self) -> set:
+        """Chaves de DEV_TOOLS já instaladas — para o diálogo pré-marcar e
+        travar esses itens e só instalar os NOVOS."""
+        got = set()
+        if shutil.which("code"):
+            got.add("vscode")
+        if self._cline_installed():
+            got.add("cline")
+        if self._openwebui_present():
+            got.add("openwebui")
+        if shutil.which("docker"):
+            got.add("docker")
+        return got
