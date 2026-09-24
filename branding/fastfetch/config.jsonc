@@ -1,0 +1,15 @@
+{
+    // CapivaraOS — logo próprio do fastfetch (FEAT-136 / FEAT-50).
+    // Substitui o logo ASCII do Fedora (que o fastfetch escolhe por ID_LIKE do
+    // os-release) pela cabeça de capivara da marca + o nome "CapivaraOS" em verde.
+    // Só define o LOGO; os módulos de info seguem o padrão do fastfetch.
+    // A arte usa o placeholder $2 (nome) -> cor 2 = verde da marca #15B22C.
+    "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+    "logo": {
+        "type": "file",
+        "source": "/usr/share/capivaraos/fastfetch/capivara.txt",
+        "color": {
+            "2": "38;2;21;178;44"
+        }
+    }
+}
