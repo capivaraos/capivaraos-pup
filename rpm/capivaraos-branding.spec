@@ -27,7 +27,7 @@ Version:        2.0.0
 # "2.0.0-1.<dist>.pup" fica RESERVADO para o LANCAMENTO PUBLICO conjunto das
 # 3 spins (ver PROD-61). NEVRA 2.0.0-0.1.alpha1 < 2.0.0-1, entao o dnf nunca
 # atualiza "pra tras". Builds de dev saem rotulados "preview".
-Release:        0.6.alpha6%{?dist}.pup
+Release:        0.7.alpha7%{?dist}.pup
 Summary:        Identidade visual, wallpapers e branding padrão do CapivaraOS Pup 2.0.0 (preview)
 
 License:        GPL-3.0-or-later AND LicenseRef-CapivaraOS-Trademark
@@ -691,14 +691,14 @@ systemctl --global enable capivaraos-update-notify.timer >/dev/null 2>&1 || true
 # escritos aqui (em vez de %files) para evitar conflito de arquivo no dnf.
 cat > %{_sysconfdir}/os-release << 'EOF'
 NAME="CapivaraOS"
-VERSION="Pup 2.0.0 (alpha6, preview)"
+VERSION="Pup 2.0.0 (alpha7, preview)"
 RELEASE_TYPE=stable
 ID=capivaraos
 ID_LIKE=fedora
 VERSION_ID=45
 VERSION_CODENAME=pup
 PLATFORM_ID="platform:f45"
-PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha6, preview)"
+PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha7, preview)"
 ANSI_COLOR="0;32"
 LOGO=capivaraos-full-logo
 CPE_NAME="cpe:/o:capivaraos:capivaraos:45"
@@ -711,17 +711,17 @@ REDHAT_BUGZILLA_PRODUCT="Fedora"
 REDHAT_BUGZILLA_PRODUCT_VERSION=45
 REDHAT_SUPPORT_PRODUCT="Fedora"
 REDHAT_SUPPORT_PRODUCT_VERSION=45
-VARIANT="Pup 2.0.0 (alpha6, preview)"
+VARIANT="Pup 2.0.0 (alpha7, preview)"
 VARIANT_ID=pup
 EOF
 
 cat > %{_sysconfdir}/issue << 'EOF'
-CapivaraOS Pup 2.0.0 (alpha6, preview) \n \l
+CapivaraOS Pup 2.0.0 (alpha7, preview) \n \l
 
 EOF
 
 cat > %{_sysconfdir}/issue.net << 'EOF'
-CapivaraOS Pup 2.0.0 (alpha6, preview)
+CapivaraOS Pup 2.0.0 (alpha7, preview)
 EOF
 
 # ── Reaplica os-release apos qualquer atualizacao futura do sistema ────────
@@ -745,14 +745,14 @@ EOF
 grep -q '^NAME="CapivaraOS"' %{_prefix}/lib/os-release 2>/dev/null && exit 0
 cat > %{_sysconfdir}/os-release << 'EOF'
 NAME="CapivaraOS"
-VERSION="Pup 2.0.0 (alpha6, preview)"
+VERSION="Pup 2.0.0 (alpha7, preview)"
 RELEASE_TYPE=stable
 ID=capivaraos
 ID_LIKE=fedora
 VERSION_ID=45
 VERSION_CODENAME=pup
 PLATFORM_ID="platform:f45"
-PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha6, preview)"
+PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha7, preview)"
 ANSI_COLOR="0;32"
 LOGO=capivaraos-full-logo
 CPE_NAME="cpe:/o:capivaraos:capivaraos:45"
@@ -765,17 +765,17 @@ REDHAT_BUGZILLA_PRODUCT="Fedora"
 REDHAT_BUGZILLA_PRODUCT_VERSION=45
 REDHAT_SUPPORT_PRODUCT="Fedora"
 REDHAT_SUPPORT_PRODUCT_VERSION=45
-VARIANT="Pup 2.0.0 (alpha6, preview)"
+VARIANT="Pup 2.0.0 (alpha7, preview)"
 VARIANT_ID=pup
 EOF
 
 cat > %{_sysconfdir}/issue << 'EOF'
-CapivaraOS Pup 2.0.0 (alpha6, preview) \n \l
+CapivaraOS Pup 2.0.0 (alpha7, preview) \n \l
 
 EOF
 
 cat > %{_sysconfdir}/issue.net << 'EOF'
-CapivaraOS Pup 2.0.0 (alpha6, preview)
+CapivaraOS Pup 2.0.0 (alpha7, preview)
 EOF
 
 for kver in $(ls /lib/modules 2>/dev/null); do
@@ -810,6 +810,15 @@ done
 %{_userunitdir}/capivaraos-update-notify.timer
 
 %changelog
+* Tue Sep 29 2026 CapivaraOS Project <capivaraos-bot@users.noreply.github.com> - 2.0.0-0.7.alpha7
+- PROD-133 (BLOCKER de boot) espelhado do Marsh: o %post do post-branding remove
+  o /etc/kernel/cmdline "fantasma" (e /usr/lib/kernel/cmdline) que nasce no build
+  da live e era arrastado pro alvo pelo liveimg (UUID de raiz do build + sem
+  rootflags=subvol=root) -> o 1o update de kernel gerava BLS quebrada -> dracut
+  emergency mode. Sem o arquivo, o kernel-install deriva a cmdline do /proc/cmdline
+  REAL do sistema instalado. Ver reference_etc_kernel_cmdline_ghost. FALTA validar
+  num install limpo em VM (instalar -> 1 update de kernel -> conferir boot).
+
 * Thu Sep 24 2026 CapivaraOS Project <capivaraos-bot@users.noreply.github.com> - 2.0.0-0.6.alpha6
 - Logo próprio do CapivaraOS no fastfetch (FEAT-137/FEAT-50): substitui o logo ASCII
   do Fedora pela capivara + "CapivaraOS" (verde #15B22C). Arte em
