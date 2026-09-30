@@ -27,7 +27,7 @@ Version:        2.0.0
 # "2.0.0-1.<dist>.pup" fica RESERVADO para o LANCAMENTO PUBLICO conjunto das
 # 3 spins (ver PROD-61). NEVRA 2.0.0-0.1.alpha1 < 2.0.0-1, entao o dnf nunca
 # atualiza "pra tras". Builds de dev saem rotulados "preview".
-Release:        0.7.alpha7%{?dist}.pup
+Release:        0.8.alpha8%{?dist}.pup
 Summary:        Identidade visual, wallpapers e branding padrão do CapivaraOS Pup 2.0.0 (preview)
 
 License:        GPL-3.0-or-later AND LicenseRef-CapivaraOS-Trademark
@@ -89,10 +89,16 @@ mkdir -p build/pixmaps
 "$CONVERT" icons/capivaraos-logo.png -fill white -colorize 100% \
     -resize 256x256 build/pixmaps/capivaraos-white.png
 
-# ── 4. Avatar padrão (.face): só a capivara, fundo branco quadrado ──────────
-# Vem de icons/capivaraos-logo.png (canvas quadrado, capivara sem texto), não
-# de um -crop sobre a logo-mestre -- ver a nota em 4b sobre coordenadas fixas.
-"$CONVERT" icons/capivaraos-logo.png -background white -flatten \
+# ── 4. Avatar padrão (.face): capivara BRANCA sobre fundo AZUL-MARINHO ────────
+# Decisao do dono (2026-09-23, "de-green"): o avatar do usuario/greeter passa a
+# ser a capivara BRANCA sobre navy #1E2F4E (o azul-marinho da logo), igual ao
+# Marsh e ao Snout -- no lugar da capivara marrom sobre branco (vista na tela de
+# bloqueio/greeter LightDM). Exibido em circulo pelo greeter (o quadrado navy
+# preenche). Usamos o icone quadrado versionado icons/capivaraos-logo.png
+# (capivara sem texto, com alfa) e colorimos de branco preservando o alfa, sobre
+# quadrado navy -- NAO um -crop de coordenada fixa sobre a logo-mestre (nota 4b).
+"$CONVERT" icons/capivaraos-logo.png -colorspace sRGB -fill white -colorize 100% \
+    -gravity center -background '#1E2F4E' -extent 900x900 -flatten \
     -resize 256x256 build/pixmaps/capivaraos-face.png
 
 # ── 4b. Logo quadrada (capivara, sem texto, fundo transparente) para o
@@ -691,14 +697,14 @@ systemctl --global enable capivaraos-update-notify.timer >/dev/null 2>&1 || true
 # escritos aqui (em vez de %files) para evitar conflito de arquivo no dnf.
 cat > %{_sysconfdir}/os-release << 'EOF'
 NAME="CapivaraOS"
-VERSION="Pup 2.0.0 (alpha7, preview)"
+VERSION="Pup 2.0.0 (alpha8, preview)"
 RELEASE_TYPE=stable
 ID=capivaraos
 ID_LIKE=fedora
 VERSION_ID=45
 VERSION_CODENAME=pup
 PLATFORM_ID="platform:f45"
-PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha7, preview)"
+PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha8, preview)"
 ANSI_COLOR="0;32"
 LOGO=capivaraos-full-logo
 CPE_NAME="cpe:/o:capivaraos:capivaraos:45"
@@ -711,17 +717,17 @@ REDHAT_BUGZILLA_PRODUCT="Fedora"
 REDHAT_BUGZILLA_PRODUCT_VERSION=45
 REDHAT_SUPPORT_PRODUCT="Fedora"
 REDHAT_SUPPORT_PRODUCT_VERSION=45
-VARIANT="Pup 2.0.0 (alpha7, preview)"
+VARIANT="Pup 2.0.0 (alpha8, preview)"
 VARIANT_ID=pup
 EOF
 
 cat > %{_sysconfdir}/issue << 'EOF'
-CapivaraOS Pup 2.0.0 (alpha7, preview) \n \l
+CapivaraOS Pup 2.0.0 (alpha8, preview) \n \l
 
 EOF
 
 cat > %{_sysconfdir}/issue.net << 'EOF'
-CapivaraOS Pup 2.0.0 (alpha7, preview)
+CapivaraOS Pup 2.0.0 (alpha8, preview)
 EOF
 
 # ── Reaplica os-release apos qualquer atualizacao futura do sistema ────────
@@ -745,14 +751,14 @@ EOF
 grep -q '^NAME="CapivaraOS"' %{_prefix}/lib/os-release 2>/dev/null && exit 0
 cat > %{_sysconfdir}/os-release << 'EOF'
 NAME="CapivaraOS"
-VERSION="Pup 2.0.0 (alpha7, preview)"
+VERSION="Pup 2.0.0 (alpha8, preview)"
 RELEASE_TYPE=stable
 ID=capivaraos
 ID_LIKE=fedora
 VERSION_ID=45
 VERSION_CODENAME=pup
 PLATFORM_ID="platform:f45"
-PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha7, preview)"
+PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha8, preview)"
 ANSI_COLOR="0;32"
 LOGO=capivaraos-full-logo
 CPE_NAME="cpe:/o:capivaraos:capivaraos:45"
@@ -765,17 +771,17 @@ REDHAT_BUGZILLA_PRODUCT="Fedora"
 REDHAT_BUGZILLA_PRODUCT_VERSION=45
 REDHAT_SUPPORT_PRODUCT="Fedora"
 REDHAT_SUPPORT_PRODUCT_VERSION=45
-VARIANT="Pup 2.0.0 (alpha7, preview)"
+VARIANT="Pup 2.0.0 (alpha8, preview)"
 VARIANT_ID=pup
 EOF
 
 cat > %{_sysconfdir}/issue << 'EOF'
-CapivaraOS Pup 2.0.0 (alpha7, preview) \n \l
+CapivaraOS Pup 2.0.0 (alpha8, preview) \n \l
 
 EOF
 
 cat > %{_sysconfdir}/issue.net << 'EOF'
-CapivaraOS Pup 2.0.0 (alpha7, preview)
+CapivaraOS Pup 2.0.0 (alpha8, preview)
 EOF
 
 for kver in $(ls /lib/modules 2>/dev/null); do
@@ -810,6 +816,14 @@ done
 %{_userunitdir}/capivaraos-update-notify.timer
 
 %changelog
+* Wed Sep 30 2026 CapivaraOS Project <capivaraos-bot@users.noreply.github.com> - 2.0.0-0.8.alpha8
+- Avatar padrao (.face) do usuario/greeter LightDM: troca a capivara MARROM sobre
+  branco pela capivara BRANCA sobre navy #1E2F4E (igual Marsh/Snout, decisao
+  "de-green" 2026-09-23). Colorize branco preservando o alfa do icone quadrado
+  versionado (capivaraos-logo.png) sobre quadrado navy -- sem -crop de coordenada
+  fixa. Demais logos (plymouth branca, icones de app, cockpit) inalteradas. NAO
+  toca em nada de update in-place.
+
 * Tue Sep 29 2026 CapivaraOS Project <capivaraos-bot@users.noreply.github.com> - 2.0.0-0.7.alpha7
 - PROD-133 (BLOCKER de boot) espelhado do Marsh: o %post do post-branding remove
   o /etc/kernel/cmdline "fantasma" (e /usr/lib/kernel/cmdline) que nasce no build
