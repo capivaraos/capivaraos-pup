@@ -18,7 +18,7 @@ Name:           capivaraos-upgrade
 Version:        1.0.0
 # Sufixo ".pup": convenção das outras spins (evita colisão de NEVRA em
 # ~/rpmbuild compartilhado — BUG-30).
-Release:        1%{?dist}.pup
+Release:        2%{?dist}.pup
 Summary:        Upgrade de versão in-place (dnf5 system-upgrade) do CapivaraOS
 
 License:        GPL-3.0-or-later
@@ -53,6 +53,11 @@ install -D -m 0755 %{SOURCE0} %{buildroot}%{_bindir}/capivaraos-upgrade
 %{_bindir}/capivaraos-upgrade
 
 %changelog
+* Wed Sep 30 2026 CapivaraOS <capivaraos-bot@users.noreply.github.com> - 1.0.0-2.pup
+- Sub-versão de validação da UX de atualização (FEAT-143): sem mudança funcional.
+  Usada para confirmar, numa VM real, que os nossos updates aparecem no updater
+  padrão do Fedora Xfce (dnfdragora / dnfdragora-updater), via dnf/PackageKit.
+
 * Fri Sep 18 2026 CapivaraOS <capivaraos-bot@users.noreply.github.com> - 1.0.0-1.pup
 - Port da engine de upgrade in-place para o Pup 2.x (PROD-116): a ferramenta
   `capivaraos-upgrade` é idêntica à do Marsh (FEAT-111/115) — usa nomes genéricos
