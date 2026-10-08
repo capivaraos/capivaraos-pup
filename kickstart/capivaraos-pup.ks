@@ -104,6 +104,10 @@ f45-backgrounds-xfce
 # App de onboarding do 1o boot (Xfce/GTK), versão enxuta (PROD-122): cards de
 # IA local, ferramentas de dev e GitHub CLI. Vem do repo local desta spin.
 capivara-central
+# -- COS Config Center: central de configuracao (codecs, firewall, discos, rede,
+# idioma...). Pacote ja assinado, baixado do nosso repositorio pelo build-all.sh
+# para o repo local capivaraos-local.
+cos-config
 
 # ===== SNAPSHOTS ("atualize sem medo") =====
 # Btrfs é o padrão do instalador; snapper dá os snapshots pré/pós. A config
