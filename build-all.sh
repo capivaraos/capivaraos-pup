@@ -43,6 +43,34 @@ for SPEC in "$SCRIPT_DIR/rpm/capivaraos-branding.spec" \
     [ -f "$RPM_FILE" ] || { echo "ERRO: RPM esperado não encontrado: ${RPM_FILE}" >&2; exit 1; }
     cp -v "$RPM_FILE" "$REPO_DIR/"
 done
+# ── COS Config Center (app de configuração do sistema) ──────────────────────
+# Não é buildado aqui: vem JÁ ASSINADO do nosso repositório, o mesmo pacote
+# que o usuário recebe por update. Baixamos a versão mais nova do canal e
+# conferimos a assinatura com a chave pública do projeto (num rpmdb isolado)
+# antes de pôr no repo local — a confiança vem da assinatura, não do host.
+# Canal: "testing" até o pacote ser promovido; depois COS_CONFIG_CHANNEL=stable.
+COS_CONFIG_CHANNEL="${COS_CONFIG_CHANNEL:-testing}"
+COS_CONFIG_URL="https://repo.capivaraos.org/pup/f45/x86_64/${COS_CONFIG_CHANNEL}/"
+echo "  baixando cos-config de ${COS_CONFIG_URL}"
+_CC=$(mktemp -d)
+cat > "$_CC/cos-config.repo" <<EOF
+[cos-config-src]
+name=cos-config-src
+baseurl=${COS_CONFIG_URL}
+enabled=1
+gpgcheck=0
+EOF
+dnf -q -y --setopt=reposdir="$_CC" --setopt=cachedir="$_CC/cache" \
+    --disablerepo='*' --enablerepo=cos-config-src --releasever=45 \
+    download --destdir="$_CC/out" cos-config
+COS_CONFIG_RPM=$(find "$_CC/out" -name 'cos-config-*.noarch.rpm' | sort -V | tail -1)
+[ -n "$COS_CONFIG_RPM" ] || { echo "ERRO: não consegui baixar o cos-config de ${COS_CONFIG_URL}" >&2; exit 1; }
+rpm --dbpath "$_CC/db" --import "$SCRIPT_DIR/keys/RPM-GPG-KEY-capivaraos"
+rpm --dbpath "$_CC/db" -K "$COS_CONFIG_RPM" | grep -q 'digests signatures OK$' \
+    || { echo "ERRO: assinatura inválida em $(basename "$COS_CONFIG_RPM"); não entra na ISO." >&2; exit 1; }
+rm -f "$REPO_DIR"/cos-config-*.rpm
+cp -v "$COS_CONFIG_RPM" "$REPO_DIR/"
+rm -rf "$_CC"
 createrepo_c "$REPO_DIR"
 
 echo "==> 4/4: Gerando ISO com livemedia-creator (pode levar bastante tempo)..."
