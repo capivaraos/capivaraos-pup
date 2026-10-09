@@ -1,4 +1,4 @@
-# Seleção de pacotes — CapivaraOS Pup (Fedora 44, Xfce)
+# Seleção de pacotes — CapivaraOS Pup (Fedora 45, Xfce)
 
 Diferente do CapivaraOS Marsh (que parte de um mapeamento Debian -> Fedora),
 o Pup é uma spin nova, então este documento registra a *escolha* de pacotes
@@ -34,6 +34,13 @@ Fedora 44 (repos `fedora`+`updates`) numa máquina de build Fedora 44, via
 | `aspell-*` | Dicionários — pesados, pouco usados fora de um editor de texto avançado. |
 | `pidgin`, `transmission` | Apps de nicho (chat multiprotocolo, torrent) não essenciais para o público de 4GB RAM. |
 | `claws-mail-plugins-*` | Plugins do cliente de e-mail padrão do Xfce, mantemos só o app base. |
+
+## Aplicativos próprios do CapivaraOS (série 2.x)
+
+| Pacote | O que é | Origem |
+|---|---|---|
+| `capivara-central` | **COS Dev Center** (versão mínima): app de onboarding do 1º boot com os cards de IA local, Ferramentas de dev e GitHub CLI. | Construído neste repo (`apps/capivara-central/`) e servido pelo repo local da build. |
+| `cos-config` | **COS Config Center** (0.11.1): central única de configuração do CapivaraOS — 9 módulos (codecs/RPM Fusion/Flathub, limpeza, discos, tamanho dos logs, diagnóstico, teclado, idioma, firewall, acesso remoto e rede). Firewall na zona `public`, portas >1024 fechadas de fábrica. | Pacote próprio (repositório `cos-config`); baixado do canal **testing** assinado do repo da spin (`repo.capivaraos.org/pup/f45/x86_64/testing/`) no passo 3 do `build-all.sh`, com verificação de assinatura (`keys/RPM-GPG-KEY-capivaraos`) — sem assinatura válida a build aborta. Canal na variável `COS_CONFIG_CHANNEL` (padrão `testing`; vira `stable` no lançamento, PROD-165). |
 
 ## Idioma / localização
 
