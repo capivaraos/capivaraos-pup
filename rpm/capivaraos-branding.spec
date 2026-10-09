@@ -27,7 +27,7 @@ Version:        2.0.0
 # "2.0.0-1.<dist>.pup" fica RESERVADO para o LANCAMENTO PUBLICO conjunto das
 # 3 spins (ver PROD-61). NEVRA 2.0.0-0.1.alpha1 < 2.0.0-1, entao o dnf nunca
 # atualiza "pra tras". Builds de dev saem rotulados "preview".
-Release:        0.9.alpha9%{?dist}.pup
+Release:        0.10.alpha10%{?dist}.pup
 Summary:        Identidade visual, wallpapers e branding padrão do CapivaraOS Pup 2.0.0 (preview)
 
 License:        GPL-3.0-or-later AND LicenseRef-CapivaraOS-Trademark
@@ -144,7 +144,7 @@ done
 
 %install
 set -e
-DEFAULT_WP=%{_datadir}/backgrounds/capivaraos/capivaraos-wp-moonlight.png
+DEFAULT_WP=%{_datadir}/backgrounds/capivaraos/capivaraos-wp-rio.png
 
 # ── Wallpapers da marca 2.x ─────────────────────────────────────────────────
 install -d %{buildroot}%{_datadir}/backgrounds/capivaraos
@@ -482,7 +482,7 @@ cat > %{buildroot}%{_sysconfdir}/xdg/xfce4/xinitrc.d/50-capivaraos-wallpaper.sh 
 # Gera o backdrop do xfdesktop para os monitores conectados ANTES do xfdesktop
 # subir, para o wallpaper CapivaraOS aparecer ja no primeiro frame. Ver
 # capivaraos-branding.spec (BUG-35).
-WP=/usr/share/backgrounds/capivaraos/capivaraos-wp-moonlight.png
+WP=/usr/share/backgrounds/capivaraos/capivaraos-wp-rio.png
 CFG="$HOME/.config/xfce4/xfconf/xfce-perchannel-xml"
 XML="$CFG/xfce4-desktop.xml"
 
@@ -636,12 +636,12 @@ if [ -f %{_sysconfdir}/lightdm/lightdm-gtk-greeter.conf ]; then
     sed -i \
         -e '/^background=/d' \
         -e '/^user-background=/d' \
-        -e '/^\[greeter\]/a background=%{_datadir}/backgrounds/capivaraos/capivaraos-wp-moonlight.png\nuser-background=false' \
+        -e '/^\[greeter\]/a background=%{_datadir}/backgrounds/capivaraos/capivaraos-wp-rio.png\nuser-background=false' \
         %{_sysconfdir}/lightdm/lightdm-gtk-greeter.conf
 else
     cat > %{_sysconfdir}/lightdm/lightdm-gtk-greeter.conf << EOF
 [greeter]
-background=%{_datadir}/backgrounds/capivaraos/capivaraos-wp-moonlight.png
+background=%{_datadir}/backgrounds/capivaraos/capivaraos-wp-rio.png
 user-background=false
 EOF
 fi
@@ -697,14 +697,14 @@ systemctl --global enable capivaraos-update-notify.timer >/dev/null 2>&1 || true
 # escritos aqui (em vez de %files) para evitar conflito de arquivo no dnf.
 cat > %{_sysconfdir}/os-release << 'EOF'
 NAME="CapivaraOS"
-VERSION="Pup 2.0.0 (alpha9, preview)"
+VERSION="Pup 2.0.0 (alpha10, preview)"
 RELEASE_TYPE=stable
 ID=capivaraos
 ID_LIKE=fedora
 VERSION_ID=45
 VERSION_CODENAME=pup
 PLATFORM_ID="platform:f45"
-PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha9, preview)"
+PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha10, preview)"
 ANSI_COLOR="0;32"
 LOGO=capivaraos-full-logo
 CPE_NAME="cpe:/o:capivaraos:capivaraos:45"
@@ -717,17 +717,17 @@ REDHAT_BUGZILLA_PRODUCT="Fedora"
 REDHAT_BUGZILLA_PRODUCT_VERSION=45
 REDHAT_SUPPORT_PRODUCT="Fedora"
 REDHAT_SUPPORT_PRODUCT_VERSION=45
-VARIANT="Pup 2.0.0 (alpha9, preview)"
+VARIANT="Pup 2.0.0 (alpha10, preview)"
 VARIANT_ID=pup
 EOF
 
 cat > %{_sysconfdir}/issue << 'EOF'
-CapivaraOS Pup 2.0.0 (alpha9, preview) \n \l
+CapivaraOS Pup 2.0.0 (alpha10, preview) \n \l
 
 EOF
 
 cat > %{_sysconfdir}/issue.net << 'EOF'
-CapivaraOS Pup 2.0.0 (alpha9, preview)
+CapivaraOS Pup 2.0.0 (alpha10, preview)
 EOF
 
 # ── Reaplica os-release apos qualquer atualizacao futura do sistema ────────
@@ -751,14 +751,14 @@ EOF
 grep -q '^NAME="CapivaraOS"' %{_prefix}/lib/os-release 2>/dev/null && exit 0
 cat > %{_sysconfdir}/os-release << 'EOF'
 NAME="CapivaraOS"
-VERSION="Pup 2.0.0 (alpha9, preview)"
+VERSION="Pup 2.0.0 (alpha10, preview)"
 RELEASE_TYPE=stable
 ID=capivaraos
 ID_LIKE=fedora
 VERSION_ID=45
 VERSION_CODENAME=pup
 PLATFORM_ID="platform:f45"
-PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha9, preview)"
+PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha10, preview)"
 ANSI_COLOR="0;32"
 LOGO=capivaraos-full-logo
 CPE_NAME="cpe:/o:capivaraos:capivaraos:45"
@@ -771,17 +771,17 @@ REDHAT_BUGZILLA_PRODUCT="Fedora"
 REDHAT_BUGZILLA_PRODUCT_VERSION=45
 REDHAT_SUPPORT_PRODUCT="Fedora"
 REDHAT_SUPPORT_PRODUCT_VERSION=45
-VARIANT="Pup 2.0.0 (alpha9, preview)"
+VARIANT="Pup 2.0.0 (alpha10, preview)"
 VARIANT_ID=pup
 EOF
 
 cat > %{_sysconfdir}/issue << 'EOF'
-CapivaraOS Pup 2.0.0 (alpha9, preview) \n \l
+CapivaraOS Pup 2.0.0 (alpha10, preview) \n \l
 
 EOF
 
 cat > %{_sysconfdir}/issue.net << 'EOF'
-CapivaraOS Pup 2.0.0 (alpha9, preview)
+CapivaraOS Pup 2.0.0 (alpha10, preview)
 EOF
 
 for kver in $(ls /lib/modules 2>/dev/null); do
@@ -816,6 +816,16 @@ done
 %{_userunitdir}/capivaraos-update-notify.timer
 
 %changelog
+* Fri Oct 09 2026 CapivaraOS Project <capivaraos-bot@users.noreply.github.com> - 2.0.0-0.10.alpha10
+- Novo wallpaper "rio" (capivaras no rio) passa a ser o papel de parede PADRAO
+  do Pup (capivaraos-wp-rio.png), com a logo branca do CapivaraOS no canto
+  inferior esquerdo, na mesma altura/formato dos demais. Os wallpapers antigos
+  (moonlight, sunset etc.) continuam disponiveis como opcao no seletor. Decisao
+  do dono: este wallpaper e exclusivo do Pup. Os PNGs de wallpaper tiveram a
+  metainformacao removida (mogrify -strip) por higiene -- auditoria confirmou
+  que nao havia vazamento (sem GPS/autor/conta/host). Este bump marca o rotulo
+  preview (alpha9 -> alpha10) porque o conteudo da ISO mudou.
+
 * Fri Oct 09 2026 CapivaraOS Project <capivaraos-bot@users.noreply.github.com> - 2.0.0-0.9.alpha9
 - A ISO passa a incluir o COS Config Center (pacote cos-config 0.11.1, central
   de configuracao do CapivaraOS; PROD-141/PROD-5). O pacote vem do canal testing
