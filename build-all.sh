@@ -16,7 +16,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR=/var/tmp/capivaraos-pup-repo
 RESULT_DIR=/var/tmp/capivaraos-pup-result
-ISO_NAME=CapivaraOS-Pup-2.0.0-alpha9-x86_64.iso
+ISO_NAME=CapivaraOS-Pup-2.0.0-alpha10-x86_64.iso
 
 echo "==> 1/4: Instalando dependências (lorax, rpm-build, ImageMagick, git, createrepo_c)..."
 sudo dnf install -y lorax rpm-build ImageMagick git createrepo_c
@@ -89,9 +89,9 @@ LIVEMEDIA_LOG="$SCRIPT_DIR/livemedia.log"
 sudo livemedia-creator --ks="$FLAT_KS" \
     --no-virt --resultdir="$RESULT_DIR" \
     --logfile="$LIVEMEDIA_LOG" \
-    --project="CapivaraOS Pup" --make-iso --iso-only \
+    --project="CapivaraOS Pup 2" --make-iso --iso-only \
     --iso-name="$ISO_NAME" \
-    --volid="CapivaraOS Pup 2.0.0 alpha9" --variant="CapivaraOS Pup" \
+    --volid="CapivaraOS Pup 2.0.0 alpha10" --variant="CapivaraOS Pup" \
     --releasever=45
 
 # ── Trava contra ISO sem os updates do Fedora (BUG-29) ─────────────────────
