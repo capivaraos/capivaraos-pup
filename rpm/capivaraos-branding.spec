@@ -27,7 +27,7 @@ Version:        2.0.0
 # "2.0.0-1.<dist>.pup" fica RESERVADO para o LANCAMENTO PUBLICO conjunto das
 # 3 spins (ver PROD-61). NEVRA 2.0.0-0.1.alpha1 < 2.0.0-1, entao o dnf nunca
 # atualiza "pra tras". Builds de dev saem rotulados "preview".
-Release:        0.10.alpha10%{?dist}.pup
+Release:        0.11.alpha11%{?dist}.pup
 Summary:        Identidade visual, wallpapers e branding padrão do CapivaraOS Pup 2.0.0 (preview)
 
 License:        GPL-3.0-or-later AND LicenseRef-CapivaraOS-Trademark
@@ -697,14 +697,14 @@ systemctl --global enable capivaraos-update-notify.timer >/dev/null 2>&1 || true
 # escritos aqui (em vez de %files) para evitar conflito de arquivo no dnf.
 cat > %{_sysconfdir}/os-release << 'EOF'
 NAME="CapivaraOS"
-VERSION="Pup 2.0.0 (alpha10, preview)"
+VERSION="Pup 2.0.0 (alpha11, preview)"
 RELEASE_TYPE=stable
 ID=capivaraos
 ID_LIKE=fedora
 VERSION_ID=45
 VERSION_CODENAME=pup
 PLATFORM_ID="platform:f45"
-PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha10, preview)"
+PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha11, preview)"
 ANSI_COLOR="0;32"
 LOGO=capivaraos-full-logo
 CPE_NAME="cpe:/o:capivaraos:capivaraos:45"
@@ -717,17 +717,17 @@ REDHAT_BUGZILLA_PRODUCT="Fedora"
 REDHAT_BUGZILLA_PRODUCT_VERSION=45
 REDHAT_SUPPORT_PRODUCT="Fedora"
 REDHAT_SUPPORT_PRODUCT_VERSION=45
-VARIANT="Pup 2.0.0 (alpha10, preview)"
+VARIANT="Pup 2.0.0 (alpha11, preview)"
 VARIANT_ID=pup
 EOF
 
 cat > %{_sysconfdir}/issue << 'EOF'
-CapivaraOS Pup 2.0.0 (alpha10, preview) \n \l
+CapivaraOS Pup 2.0.0 (alpha11, preview) \n \l
 
 EOF
 
 cat > %{_sysconfdir}/issue.net << 'EOF'
-CapivaraOS Pup 2.0.0 (alpha10, preview)
+CapivaraOS Pup 2.0.0 (alpha11, preview)
 EOF
 
 # ── Reaplica os-release apos qualquer atualizacao futura do sistema ────────
@@ -751,14 +751,14 @@ EOF
 grep -q '^NAME="CapivaraOS"' %{_prefix}/lib/os-release 2>/dev/null && exit 0
 cat > %{_sysconfdir}/os-release << 'EOF'
 NAME="CapivaraOS"
-VERSION="Pup 2.0.0 (alpha10, preview)"
+VERSION="Pup 2.0.0 (alpha11, preview)"
 RELEASE_TYPE=stable
 ID=capivaraos
 ID_LIKE=fedora
 VERSION_ID=45
 VERSION_CODENAME=pup
 PLATFORM_ID="platform:f45"
-PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha10, preview)"
+PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha11, preview)"
 ANSI_COLOR="0;32"
 LOGO=capivaraos-full-logo
 CPE_NAME="cpe:/o:capivaraos:capivaraos:45"
@@ -771,17 +771,17 @@ REDHAT_BUGZILLA_PRODUCT="Fedora"
 REDHAT_BUGZILLA_PRODUCT_VERSION=45
 REDHAT_SUPPORT_PRODUCT="Fedora"
 REDHAT_SUPPORT_PRODUCT_VERSION=45
-VARIANT="Pup 2.0.0 (alpha10, preview)"
+VARIANT="Pup 2.0.0 (alpha11, preview)"
 VARIANT_ID=pup
 EOF
 
 cat > %{_sysconfdir}/issue << 'EOF'
-CapivaraOS Pup 2.0.0 (alpha10, preview) \n \l
+CapivaraOS Pup 2.0.0 (alpha11, preview) \n \l
 
 EOF
 
 cat > %{_sysconfdir}/issue.net << 'EOF'
-CapivaraOS Pup 2.0.0 (alpha10, preview)
+CapivaraOS Pup 2.0.0 (alpha11, preview)
 EOF
 
 for kver in $(ls /lib/modules 2>/dev/null); do
@@ -816,15 +816,24 @@ done
 %{_userunitdir}/capivaraos-update-notify.timer
 
 %changelog
+* Mon Oct 12 2026 CapivaraOS Project <capivaraos-bot@users.noreply.github.com> - 2.0.0-0.11.alpha11
+- Correcao de posicionamento do wallpaper "rio": a logo branca do CapivaraOS
+  foi para o canto inferior DIREITO (no alpha10 saiu a esquerda), na mesma
+  altura (180) e margens (direita 210 / inferior 280) dos demais wallpapers, e
+  ganhou uma sombra leve ao redor para nao sumir sobre areas claras (agua).
+- Menu de boot da ISO passa a carregar a versao do CapivaraOS: build-all.sh usa
+  --project="CapivaraOS Pup 2" -> "Start CapivaraOS Pup 2 45" (2 = geracao
+  CapivaraOS, 45 = Fedora, fixo pelo template @PRODUCT@ @VERSION@ do lorax).
+  Este bump marca o rotulo preview (alpha10 -> alpha11) porque a ISO mudou.
+
 * Fri Oct 09 2026 CapivaraOS Project <capivaraos-bot@users.noreply.github.com> - 2.0.0-0.10.alpha10
 - Novo wallpaper "rio" (capivaras no rio) passa a ser o papel de parede PADRAO
-  do Pup (capivaraos-wp-rio.png), com a logo branca do CapivaraOS no canto
-  inferior esquerdo, na mesma altura/formato dos demais. Os wallpapers antigos
-  (moonlight, sunset etc.) continuam disponiveis como opcao no seletor. Decisao
-  do dono: este wallpaper e exclusivo do Pup. Os PNGs de wallpaper tiveram a
-  metainformacao removida (mogrify -strip) por higiene -- auditoria confirmou
-  que nao havia vazamento (sem GPS/autor/conta/host). Este bump marca o rotulo
-  preview (alpha9 -> alpha10) porque o conteudo da ISO mudou.
+  do Pup (capivaraos-wp-rio.png), com a logo branca do CapivaraOS. Os wallpapers
+  antigos (moonlight, sunset etc.) continuam disponiveis como opcao no seletor.
+  Decisao do dono: este wallpaper e exclusivo do Pup. Os PNGs de wallpaper
+  tiveram a metainformacao removida (mogrify -strip) por higiene -- auditoria
+  confirmou que nao havia vazamento (sem GPS/autor/conta/host).
+  Este bump marca o rotulo preview (alpha9 -> alpha10) porque a ISO mudou.
 
 * Fri Oct 09 2026 CapivaraOS Project <capivaraos-bot@users.noreply.github.com> - 2.0.0-0.9.alpha9
 - A ISO passa a incluir o COS Config Center (pacote cos-config 0.11.1, central
