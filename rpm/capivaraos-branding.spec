@@ -27,7 +27,7 @@ Version:        2.0.0
 # "2.0.0-1.<dist>.pup" fica RESERVADO para o LANCAMENTO PUBLICO conjunto das
 # 3 spins (ver PROD-61). NEVRA 2.0.0-0.1.alpha1 < 2.0.0-1, entao o dnf nunca
 # atualiza "pra tras". Builds de dev saem rotulados "preview".
-Release:        0.11.alpha11%{?dist}.pup
+Release:        0.12.alpha12%{?dist}.pup
 Summary:        Identidade visual, wallpapers e branding padrão do CapivaraOS Pup 2.0.0 (preview)
 
 License:        GPL-3.0-or-later AND LicenseRef-CapivaraOS-Trademark
@@ -608,8 +608,9 @@ install -Dm0644 update-notify/capivaraos-update-notify.timer \
 # ── Logo próprio do fastfetch (FEAT-137 [Pup] / FEAT-50) ──────────────────────
 # O fastfetch mostra o logo ASCII do Fedora (escolhido por ID_LIKE do os-release).
 # Trocamos pela cabeça de capivara da marca + "CapivaraOS" em verde. A arte vai
-# em /usr/share/capivaraos/fastfetch/ e o config.jsonc (só o LOGO, sem mexer nos
-# módulos) em /etc/skel E /etc/xdg -- este ultimo p/ valer na sessao LIVE
+# em /usr/share/capivaraos/fastfetch/ e o config.jsonc (logo + a lista de modulos
+# padrao declarada explicitamente -- senao o fastfetch 2.69 mostra SO o logo)
+# em /etc/skel E /etc/xdg -- este ultimo p/ valer na sessao LIVE
 # (fastfetch le XDG_CONFIG_DIRS=/etc/xdg). Sem auto-run (terminal limpo, decisão
 # do dono): o logo só aparece ao rodar `fastfetch`. Portado do Marsh (FEAT-136).
 install -d %{buildroot}%{_datadir}/capivaraos/fastfetch
@@ -697,14 +698,14 @@ systemctl --global enable capivaraos-update-notify.timer >/dev/null 2>&1 || true
 # escritos aqui (em vez de %files) para evitar conflito de arquivo no dnf.
 cat > %{_sysconfdir}/os-release << 'EOF'
 NAME="CapivaraOS"
-VERSION="Pup 2.0.0 (alpha11, preview)"
+VERSION="Pup 2.0.0 (alpha12, preview)"
 RELEASE_TYPE=stable
 ID=capivaraos
 ID_LIKE=fedora
 VERSION_ID=45
 VERSION_CODENAME=pup
 PLATFORM_ID="platform:f45"
-PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha11, preview)"
+PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha12, preview)"
 ANSI_COLOR="0;32"
 LOGO=capivaraos-full-logo
 CPE_NAME="cpe:/o:capivaraos:capivaraos:45"
@@ -717,17 +718,17 @@ REDHAT_BUGZILLA_PRODUCT="Fedora"
 REDHAT_BUGZILLA_PRODUCT_VERSION=45
 REDHAT_SUPPORT_PRODUCT="Fedora"
 REDHAT_SUPPORT_PRODUCT_VERSION=45
-VARIANT="Pup 2.0.0 (alpha11, preview)"
+VARIANT="Pup 2.0.0 (alpha12, preview)"
 VARIANT_ID=pup
 EOF
 
 cat > %{_sysconfdir}/issue << 'EOF'
-CapivaraOS Pup 2.0.0 (alpha11, preview) \n \l
+CapivaraOS Pup 2.0.0 (alpha12, preview) \n \l
 
 EOF
 
 cat > %{_sysconfdir}/issue.net << 'EOF'
-CapivaraOS Pup 2.0.0 (alpha11, preview)
+CapivaraOS Pup 2.0.0 (alpha12, preview)
 EOF
 
 # ── Reaplica os-release apos qualquer atualizacao futura do sistema ────────
@@ -751,14 +752,14 @@ EOF
 grep -q '^NAME="CapivaraOS"' %{_prefix}/lib/os-release 2>/dev/null && exit 0
 cat > %{_sysconfdir}/os-release << 'EOF'
 NAME="CapivaraOS"
-VERSION="Pup 2.0.0 (alpha11, preview)"
+VERSION="Pup 2.0.0 (alpha12, preview)"
 RELEASE_TYPE=stable
 ID=capivaraos
 ID_LIKE=fedora
 VERSION_ID=45
 VERSION_CODENAME=pup
 PLATFORM_ID="platform:f45"
-PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha11, preview)"
+PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha12, preview)"
 ANSI_COLOR="0;32"
 LOGO=capivaraos-full-logo
 CPE_NAME="cpe:/o:capivaraos:capivaraos:45"
@@ -771,17 +772,17 @@ REDHAT_BUGZILLA_PRODUCT="Fedora"
 REDHAT_BUGZILLA_PRODUCT_VERSION=45
 REDHAT_SUPPORT_PRODUCT="Fedora"
 REDHAT_SUPPORT_PRODUCT_VERSION=45
-VARIANT="Pup 2.0.0 (alpha11, preview)"
+VARIANT="Pup 2.0.0 (alpha12, preview)"
 VARIANT_ID=pup
 EOF
 
 cat > %{_sysconfdir}/issue << 'EOF'
-CapivaraOS Pup 2.0.0 (alpha11, preview) \n \l
+CapivaraOS Pup 2.0.0 (alpha12, preview) \n \l
 
 EOF
 
 cat > %{_sysconfdir}/issue.net << 'EOF'
-CapivaraOS Pup 2.0.0 (alpha11, preview)
+CapivaraOS Pup 2.0.0 (alpha12, preview)
 EOF
 
 for kver in $(ls /lib/modules 2>/dev/null); do
@@ -816,6 +817,14 @@ done
 %{_userunitdir}/capivaraos-update-notify.timer
 
 %changelog
+* Wed Oct 14 2026 CapivaraOS Project <capivaraos-bot@users.noreply.github.com> - 2.0.0-0.12.alpha12
+- fastfetch: o config.jsonc do Pup estava SO com "logo" (sem a lista de modulos),
+  entao o `fastfetch` imprimia so a capivara, sem as infos do sistema (OS/host/
+  kernel/...). Declarada a lista de modulos padrao explicitamente -- igual Marsh/
+  Snout (os 3 desktops ficam com o mesmo config). Cor da marca mantida (verde
+  #15B22C). Provado no fastfetch 2.69: "logo" sozinho = so o logo. (FEAT-137)
+  Este bump marca o rotulo preview (alpha11 -> alpha12) porque a ISO mudou.
+
 * Mon Oct 12 2026 CapivaraOS Project <capivaraos-bot@users.noreply.github.com> - 2.0.0-0.11.alpha11
 - Correcao de posicionamento do wallpaper "rio": a logo branca do CapivaraOS
   foi para o canto inferior DIREITO (no alpha10 saiu a esquerda), na mesma
