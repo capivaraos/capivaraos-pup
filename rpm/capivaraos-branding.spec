@@ -27,7 +27,7 @@ Version:        2.0.0
 # "2.0.0-1.<dist>.pup" fica RESERVADO para o LANCAMENTO PUBLICO conjunto das
 # 3 spins (ver PROD-61). NEVRA 2.0.0-0.1.alpha1 < 2.0.0-1, entao o dnf nunca
 # atualiza "pra tras". Builds de dev saem rotulados "preview".
-Release:        0.12.alpha12%{?dist}.pup
+Release:        0.13.alpha13%{?dist}.pup
 Summary:        Identidade visual, wallpapers e branding padrão do CapivaraOS Pup 2.0.0 (preview)
 
 License:        GPL-3.0-or-later AND LicenseRef-CapivaraOS-Trademark
@@ -320,6 +320,16 @@ cat > %{buildroot}%{_datadir}/cockpit/branding/capivaraos/branding.css << 'EOF'
 .pf-v6-theme-dark .anaconda {
     --pf-t--global--color--brand--default: var(--brand-default-light);
     --pf-t--global--color--brand--hover: var(--brand-default);
+}
+
+/* Esconde o bloco de feedback/QR da tela final do instalador. O anaconda-webui
+ * (src/components/installation/Feedback.jsx) renderiza um QR + link FIXO para
+ * https://discussion.fedoraproject.org/tag/anaconda -- nao ha configuracao para
+ * trocar a URL sem patchar o pacote. Como somos um remix, mandamos o usuario
+ * para a NOSSA pesquisa numa superficie propria (boas-vindas / COS Dev Center),
+ * nao para o Ask Fedora. O container do componente e .feedback-section. */
+.feedback-section {
+    display: none !important;
 }
 EOF
 
@@ -698,14 +708,14 @@ systemctl --global enable capivaraos-update-notify.timer >/dev/null 2>&1 || true
 # escritos aqui (em vez de %files) para evitar conflito de arquivo no dnf.
 cat > %{_sysconfdir}/os-release << 'EOF'
 NAME="CapivaraOS"
-VERSION="Pup 2.0.0 (alpha12, preview)"
+VERSION="Pup 2.0.0 (alpha13, preview)"
 RELEASE_TYPE=stable
 ID=capivaraos
 ID_LIKE=fedora
 VERSION_ID=45
 VERSION_CODENAME=pup
 PLATFORM_ID="platform:f45"
-PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha12, preview)"
+PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha13, preview)"
 ANSI_COLOR="0;32"
 LOGO=capivaraos-full-logo
 CPE_NAME="cpe:/o:capivaraos:capivaraos:45"
@@ -718,17 +728,17 @@ REDHAT_BUGZILLA_PRODUCT="Fedora"
 REDHAT_BUGZILLA_PRODUCT_VERSION=45
 REDHAT_SUPPORT_PRODUCT="Fedora"
 REDHAT_SUPPORT_PRODUCT_VERSION=45
-VARIANT="Pup 2.0.0 (alpha12, preview)"
+VARIANT="Pup 2.0.0 (alpha13, preview)"
 VARIANT_ID=pup
 EOF
 
 cat > %{_sysconfdir}/issue << 'EOF'
-CapivaraOS Pup 2.0.0 (alpha12, preview) \n \l
+CapivaraOS Pup 2.0.0 (alpha13, preview) \n \l
 
 EOF
 
 cat > %{_sysconfdir}/issue.net << 'EOF'
-CapivaraOS Pup 2.0.0 (alpha12, preview)
+CapivaraOS Pup 2.0.0 (alpha13, preview)
 EOF
 
 # ── Reaplica os-release apos qualquer atualizacao futura do sistema ────────
@@ -752,14 +762,14 @@ EOF
 grep -q '^NAME="CapivaraOS"' %{_prefix}/lib/os-release 2>/dev/null && exit 0
 cat > %{_sysconfdir}/os-release << 'EOF'
 NAME="CapivaraOS"
-VERSION="Pup 2.0.0 (alpha12, preview)"
+VERSION="Pup 2.0.0 (alpha13, preview)"
 RELEASE_TYPE=stable
 ID=capivaraos
 ID_LIKE=fedora
 VERSION_ID=45
 VERSION_CODENAME=pup
 PLATFORM_ID="platform:f45"
-PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha12, preview)"
+PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha13, preview)"
 ANSI_COLOR="0;32"
 LOGO=capivaraos-full-logo
 CPE_NAME="cpe:/o:capivaraos:capivaraos:45"
@@ -772,17 +782,17 @@ REDHAT_BUGZILLA_PRODUCT="Fedora"
 REDHAT_BUGZILLA_PRODUCT_VERSION=45
 REDHAT_SUPPORT_PRODUCT="Fedora"
 REDHAT_SUPPORT_PRODUCT_VERSION=45
-VARIANT="Pup 2.0.0 (alpha12, preview)"
+VARIANT="Pup 2.0.0 (alpha13, preview)"
 VARIANT_ID=pup
 EOF
 
 cat > %{_sysconfdir}/issue << 'EOF'
-CapivaraOS Pup 2.0.0 (alpha12, preview) \n \l
+CapivaraOS Pup 2.0.0 (alpha13, preview) \n \l
 
 EOF
 
 cat > %{_sysconfdir}/issue.net << 'EOF'
-CapivaraOS Pup 2.0.0 (alpha12, preview)
+CapivaraOS Pup 2.0.0 (alpha13, preview)
 EOF
 
 for kver in $(ls /lib/modules 2>/dev/null); do
@@ -817,6 +827,16 @@ done
 %{_userunitdir}/capivaraos-update-notify.timer
 
 %changelog
+* Sat Oct 24 2026 CapivaraOS Project <capivaraos-bot@users.noreply.github.com> - 2.0.0-0.13.alpha13
+- Instalador (Anaconda WebUI): esconde o bloco "Send us feedback" com QR + link
+  FIXO para o Ask Fedora que aparece na tela final. A URL e hardcoded no pacote
+  anaconda-webui (Feedback.jsx), sem config p/ trocar -- escondemos via CSS do
+  branding do Cockpit (`.feedback-section { display: none !important; }`), no
+  mesmo branding.css onde ja estilizamos `.anaconda`. Nao repontamos o link (isso
+  exigiria patchar o pacote); a nossa pesquisa fica numa superficie propria
+  (boas-vindas / COS Dev Center). Somos remix e o anaconda-webui e GPL. (FEAT-145)
+  Este bump marca o rotulo preview (alpha12 -> alpha13) porque a ISO mudou.
+
 * Wed Oct 14 2026 CapivaraOS Project <capivaraos-bot@users.noreply.github.com> - 2.0.0-0.12.alpha12
 - fastfetch: o config.jsonc do Pup estava SO com "logo" (sem a lista de modulos),
   entao o `fastfetch` imprimia so a capivara, sem as infos do sistema (OS/host/
