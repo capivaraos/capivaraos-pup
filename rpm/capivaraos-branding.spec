@@ -259,6 +259,54 @@ fun refresh_callback() {
     spinner.sprite.SetY(spinner.cy - img.GetHeight() / 2);
 }
 Plymouth.SetRefreshFunction(refresh_callback);
+
+# ── Pedido de senha do disco (LUKS) ─────────────────────────────────────────
+# SEM este callback, quando a instalacao usa disco criptografado o Plymouth
+# mostra SO o splash da capivara e NENHUM campo de senha -> parece que a maquina
+# nao inicia (o prompt "Please enter passphrase" so aparece em modo texto, via
+# ESC). O systemd-ask-password/cryptsetup chama esta funcao p/ desenhar o pedido
+# de senha e as bolinhas do que foi digitado; sem ela nao ha como destravar o
+# boot pela tela grafica. Afeta as 3 spins (mesmo tema).
+fun display_password_callback(prompt_string, bullets) {
+    # esconde a mensagem "Inicializando o CapivaraOS" enquanto pede a senha
+    message.sprite.SetOpacity(0);
+
+    pw_prompt.image = Image.Text("Digite a senha para desbloquear o disco",
+                                 1, 1, 1, 1, "Sans 12");
+    if (pw_prompt.sprite)
+        pw_prompt.sprite.SetImage(pw_prompt.image);
+    else
+        pw_prompt.sprite = Sprite(pw_prompt.image);
+    pw_prompt.sprite.SetPosition(
+        Window.GetWidth() / 2 - pw_prompt.image.GetWidth() / 2, spinner.cy + 70, 1);
+    pw_prompt.sprite.SetOpacity(1);
+
+    # bolinhas (uma por caractere digitado)
+    bullet_text = "";
+    for (i = 0; i < bullets; i++)
+        bullet_text += "*";
+    if (bullet_text == "")
+        bullet_text = " ";
+    pw_entry.image = Image.Text(bullet_text, 1, 1, 1, 1, "Sans 18");
+    if (pw_entry.sprite)
+        pw_entry.sprite.SetImage(pw_entry.image);
+    else
+        pw_entry.sprite = Sprite(pw_entry.image);
+    pw_entry.sprite.SetPosition(
+        Window.GetWidth() / 2 - pw_entry.image.GetWidth() / 2, spinner.cy + 100, 1);
+    pw_entry.sprite.SetOpacity(1);
+}
+Plymouth.SetDisplayPasswordFunction(display_password_callback);
+
+# Volta ao splash normal depois que a senha e aceita (ou ao limpar o prompt).
+fun display_normal_callback() {
+    message.sprite.SetOpacity(1);
+    if (pw_prompt.sprite)
+        pw_prompt.sprite.SetOpacity(0);
+    if (pw_entry.sprite)
+        pw_entry.sprite.SetOpacity(0);
+}
+Plymouth.SetDisplayNormalFunction(display_normal_callback);
 EOF
 
 # NOTA CapivaraOS: /etc/os-release e /etc/issue/.issue.net NAO sao gerados
@@ -835,6 +883,12 @@ done
   mesmo branding.css onde ja estilizamos `.anaconda`. Nao repontamos o link (isso
   exigiria patchar o pacote); a nossa pesquisa fica numa superficie propria
   (boas-vindas / COS Dev Center). Somos remix e o anaconda-webui e GPL. (FEAT-145)
+- Boot com disco CRIPTOGRAFADO (LUKS): o tema Plymouth da capivara nao desenhava
+  o pedido de senha -- faltava o callback. Com disco cifrado o boot mostrava so o
+  splash (sem campo de senha) e parecia travado; o prompt "Please enter passphrase"
+  so aparecia em modo texto (ESC). Adicionados SetDisplayPasswordFunction (pedido
+  + bolinhas do que foi digitado) e SetDisplayNormalFunction (volta ao splash) ao
+  capivaraos.script. Afeta as 3 spins desktop (mesmo tema).
   Este bump marca o rotulo preview (alpha12 -> alpha13) porque a ISO mudou.
 
 * Wed Oct 14 2026 CapivaraOS Project <capivaraos-bot@users.noreply.github.com> - 2.0.0-0.12.alpha12
