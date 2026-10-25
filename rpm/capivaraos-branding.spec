@@ -27,7 +27,7 @@ Version:        2.0.0
 # "2.0.0-1.<dist>.pup" fica RESERVADO para o LANCAMENTO PUBLICO conjunto das
 # 3 spins (ver PROD-61). NEVRA 2.0.0-0.1.alpha1 < 2.0.0-1, entao o dnf nunca
 # atualiza "pra tras". Builds de dev saem rotulados "preview".
-Release:        0.13.alpha13%{?dist}.pup
+Release:        0.14.alpha14%{?dist}.pup
 Summary:        Identidade visual, wallpapers e branding padrão do CapivaraOS Pup 2.0.0 (preview)
 
 License:        GPL-3.0-or-later AND LicenseRef-CapivaraOS-Trademark
@@ -142,6 +142,36 @@ for i in $(seq 0 29); do
         -distort SRT ${ANG} +repage "build/plymouth/spinner/${i}.png"
 done
 
+# Prompt de senha do disco criptografado (LUKS), PRE-RENDERIZADO em PNG.
+# Por que PNG e nao texto no script: o pedido de senha roda no INITRAMFS, que
+# NAO embarca libpango/libcairo -- logo o Image.Text() do Plymouth nao desenha
+# texto nenhum ali (so imagens, como a logo e o spinner, aparecem). Com
+# Image.Text o prompt ficava invisivel e o boot PARECIA travado. Entao o texto
+# vem pronto em imagem. (BUG-45/BUG-46)
+# Texto em INGLES (so o splash): decisao de globalizacao da serie 2.x.
+# Fonte: resolve uma sans instalada; evita a variavel (caminho com [wght], que
+# atrapalha o ImageMagick) e cai p/ a Liberation (sempre presente); por fim,
+# sem -font, usa a default do proprio ImageMagick.
+PWFONT=$(fc-match -f '%%{file}' sans-serif 2>/dev/null || true)
+case "$PWFONT" in *'['*|'') PWFONT= ;; esac
+[ -n "$PWFONT" ] && [ -f "$PWFONT" ] || PWFONT=/usr/share/fonts/liberation-sans-fonts/LiberationSans-Regular.ttf
+[ -f "$PWFONT" ] || PWFONT=
+PWFONTOPT=""
+[ -n "$PWFONT" ] && PWFONTOPT="-font $PWFONT"
+"$CONVERT" -background none -fill white $PWFONTOPT -pointsize 26 \
+    label:"Type password to unlock disk" \
+    build/plymouth/password_prompt.png
+# Campo de senha: retangulo arredondado (borda translucida + leve preenchimento)
+# para deixar claro que ali se DIGITA a senha. As bolinhas aparecem dentro dele.
+"$CONVERT" -size 360x48 xc:none \
+    -stroke 'rgba(255,255,255,0.55)' -strokewidth 2 \
+    -fill 'rgba(255,255,255,0.07)' \
+    -draw "roundrectangle 1,1 358,46 12,12" \
+    build/plymouth/password_field.png
+# Bolinha branca: o script desenha uma por caractere digitado da senha.
+"$CONVERT" -size 18x18 xc:none -fill white -draw "circle 9,9 9,2" \
+    build/plymouth/bullet.png
+
 %install
 set -e
 DEFAULT_WP=%{_datadir}/backgrounds/capivaraos/capivaraos-wp-rio.png
@@ -181,6 +211,12 @@ install -m 0644 build/plymouth/logo.png \
 install -d %{buildroot}%{_datadir}/plymouth/themes/capivaraos/spinner
 install -m 0644 build/plymouth/spinner/*.png \
     %{buildroot}%{_datadir}/plymouth/themes/capivaraos/spinner/
+install -m 0644 build/plymouth/password_prompt.png \
+    %{buildroot}%{_datadir}/plymouth/themes/capivaraos/password_prompt.png
+install -m 0644 build/plymouth/password_field.png \
+    %{buildroot}%{_datadir}/plymouth/themes/capivaraos/password_field.png
+install -m 0644 build/plymouth/bullet.png \
+    %{buildroot}%{_datadir}/plymouth/themes/capivaraos/bullet.png
 
 cat > %{buildroot}%{_datadir}/plymouth/themes/capivaraos/capivaraos.plymouth << 'EOF'
 [Plymouth Theme]
@@ -218,11 +254,11 @@ spinner.frame = 0;
 is_updates = (Plymouth.GetMode() == "updates" || Plymouth.GetMode() == "system-upgrade");
 
 if (Plymouth.GetMode() == "shutdown" || Plymouth.GetMode() == "reboot") {
-    message_text = "Encerrando o CapivaraOS";
+    message_text = "Shutting down CapivaraOS";
 } else if (is_updates) {
-    message_text = "Instalando atualizações";
+    message_text = "Installing updates";
 } else {
-    message_text = "Inicializando o CapivaraOS";
+    message_text = "Starting CapivaraOS";
 }
 
 message.image = Image.Text(message_text, 1, 1, 1, 1, "Sans 14");
@@ -231,7 +267,7 @@ message.sprite.SetPosition(Window.GetWidth() / 2 - message.image.GetWidth() / 2,
                             spinner.cy + 70, 1);
 
 if (is_updates) {
-    warning.image = Image.Text("Não desligue o computador", 0.8, 0.8, 0.8, 1, "Sans 11");
+    warning.image = Image.Text("Don't turn off your computer", 0.8, 0.8, 0.8, 1, "Sans 11");
     warning.sprite = Sprite(warning.image);
     warning.sprite.SetPosition(Window.GetWidth() / 2 - warning.image.GetWidth() / 2,
                                 spinner.cy + 95, 1);
@@ -259,6 +295,69 @@ fun refresh_callback() {
     spinner.sprite.SetY(spinner.cy - img.GetHeight() / 2);
 }
 Plymouth.SetRefreshFunction(refresh_callback);
+
+# ── Campo de senha do disco criptografado (LUKS) ────────────────────────────
+# Sem SetDisplayPasswordFunction, com LUKS o Plymouth nao desenha campo nenhum e
+# o boot PARECE travado (o prompt so aparece em texto, via ESC).
+# IMPORTANTE: este callback roda no INITRAMFS, que NAO tem libpango/libcairo ->
+# Image.Text() NAO renderiza texto ali (fica invisivel). Por isso prompt, campo
+# e bolinha sao PNGs pre-renderizados no %build, desenhados como imagem --
+# exatamente como a logo e o spinner, que aparecem normalmente.
+# UX: enquanto o usuario digita NAO ha carregamento, entao ESCONDEMOS o spinner
+# e mostramos um campo ("Type password to unlock disk" + 1 bolinha/caractere).
+# O spinner e a mensagem "Starting CapivaraOS" voltam quando a senha e aceita
+# (display_normal) -- ai sim o sistema comeca a carregar. (BUG-46)
+pw_prompt.image = Image("password_prompt.png");
+pw_field.image  = Image("password_field.png");
+pw_bullet.image = Image("bullet.png");
+pw_bullet_gap = 10;   # espaco horizontal entre bolinhas
+pw_bullet_max = 64;   # teto de bolinhas desenhadas
+
+fun display_password_callback(prompt_string, bullets) {
+    # esconde o estado "normal": aqui so se digita, nada carrega
+    message.sprite.SetOpacity(0);
+    spinner.sprite.SetOpacity(0);
+
+    # Texto "Type password to unlock disk" (acima do campo)
+    if (!pw_prompt.sprite) pw_prompt.sprite = Sprite(pw_prompt.image);
+    pw_prompt.sprite.SetPosition(Window.GetWidth() / 2 - pw_prompt.image.GetWidth() / 2,
+                                 spinner.cy - 36, 10);
+    pw_prompt.sprite.SetOpacity(1);
+
+    # Campo (retangulo arredondado)
+    if (!pw_field.sprite) pw_field.sprite = Sprite(pw_field.image);
+    field_top = spinner.cy + 6;
+    pw_field.sprite.SetPosition(Window.GetWidth() / 2 - pw_field.image.GetWidth() / 2,
+                                field_top, 9);
+    pw_field.sprite.SetOpacity(1);
+
+    # Uma bolinha por caractere, centralizadas dentro do campo
+    bw = pw_bullet.image.GetWidth();
+    total = bullets * bw + (bullets - 1) * pw_bullet_gap;
+    if (bullets < 1) total = 0;
+    start_x = Window.GetWidth() / 2 - total / 2;
+    by = field_top + (pw_field.image.GetHeight() - pw_bullet.image.GetHeight()) / 2;
+    for (i = 0; i < bullets && i < pw_bullet_max; i++) {
+        if (!pw_bullet[i].sprite) pw_bullet[i].sprite = Sprite(pw_bullet.image);
+        pw_bullet[i].sprite.SetPosition(start_x + i * (bw + pw_bullet_gap), by, 11);
+        pw_bullet[i].sprite.SetOpacity(1);
+    }
+    # esconde as bolinhas que sobraram (quando o usuario apaga caracteres)
+    for (i = bullets; i < pw_bullet_max; i++)
+        if (pw_bullet[i].sprite) pw_bullet[i].sprite.SetOpacity(0);
+}
+Plymouth.SetDisplayPasswordFunction(display_password_callback);
+
+fun display_normal_callback() {
+    # senha aceita: volta a mensagem e o spinner (agora sim carregando)
+    message.sprite.SetOpacity(1);
+    spinner.sprite.SetOpacity(1);
+    if (pw_prompt.sprite) pw_prompt.sprite.SetOpacity(0);
+    if (pw_field.sprite) pw_field.sprite.SetOpacity(0);
+    for (i = 0; i < pw_bullet_max; i++)
+        if (pw_bullet[i].sprite) pw_bullet[i].sprite.SetOpacity(0);
+}
+Plymouth.SetDisplayNormalFunction(display_normal_callback);
 EOF
 
 # NOTA CapivaraOS: /etc/os-release e /etc/issue/.issue.net NAO sao gerados
@@ -708,14 +807,14 @@ systemctl --global enable capivaraos-update-notify.timer >/dev/null 2>&1 || true
 # escritos aqui (em vez de %files) para evitar conflito de arquivo no dnf.
 cat > %{_sysconfdir}/os-release << 'EOF'
 NAME="CapivaraOS"
-VERSION="Pup 2.0.0 (alpha13, preview)"
+VERSION="Pup 2.0.0 (alpha14, preview)"
 RELEASE_TYPE=stable
 ID=capivaraos
 ID_LIKE=fedora
 VERSION_ID=45
 VERSION_CODENAME=pup
 PLATFORM_ID="platform:f45"
-PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha13, preview)"
+PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha14, preview)"
 ANSI_COLOR="0;32"
 LOGO=capivaraos-full-logo
 CPE_NAME="cpe:/o:capivaraos:capivaraos:45"
@@ -728,17 +827,17 @@ REDHAT_BUGZILLA_PRODUCT="Fedora"
 REDHAT_BUGZILLA_PRODUCT_VERSION=45
 REDHAT_SUPPORT_PRODUCT="Fedora"
 REDHAT_SUPPORT_PRODUCT_VERSION=45
-VARIANT="Pup 2.0.0 (alpha13, preview)"
+VARIANT="Pup 2.0.0 (alpha14, preview)"
 VARIANT_ID=pup
 EOF
 
 cat > %{_sysconfdir}/issue << 'EOF'
-CapivaraOS Pup 2.0.0 (alpha13, preview) \n \l
+CapivaraOS Pup 2.0.0 (alpha14, preview) \n \l
 
 EOF
 
 cat > %{_sysconfdir}/issue.net << 'EOF'
-CapivaraOS Pup 2.0.0 (alpha13, preview)
+CapivaraOS Pup 2.0.0 (alpha14, preview)
 EOF
 
 # ── Reaplica os-release apos qualquer atualizacao futura do sistema ────────
@@ -762,14 +861,14 @@ EOF
 grep -q '^NAME="CapivaraOS"' %{_prefix}/lib/os-release 2>/dev/null && exit 0
 cat > %{_sysconfdir}/os-release << 'EOF'
 NAME="CapivaraOS"
-VERSION="Pup 2.0.0 (alpha13, preview)"
+VERSION="Pup 2.0.0 (alpha14, preview)"
 RELEASE_TYPE=stable
 ID=capivaraos
 ID_LIKE=fedora
 VERSION_ID=45
 VERSION_CODENAME=pup
 PLATFORM_ID="platform:f45"
-PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha13, preview)"
+PRETTY_NAME="CapivaraOS Pup 2.0.0 (alpha14, preview)"
 ANSI_COLOR="0;32"
 LOGO=capivaraos-full-logo
 CPE_NAME="cpe:/o:capivaraos:capivaraos:45"
@@ -782,17 +881,17 @@ REDHAT_BUGZILLA_PRODUCT="Fedora"
 REDHAT_BUGZILLA_PRODUCT_VERSION=45
 REDHAT_SUPPORT_PRODUCT="Fedora"
 REDHAT_SUPPORT_PRODUCT_VERSION=45
-VARIANT="Pup 2.0.0 (alpha13, preview)"
+VARIANT="Pup 2.0.0 (alpha14, preview)"
 VARIANT_ID=pup
 EOF
 
 cat > %{_sysconfdir}/issue << 'EOF'
-CapivaraOS Pup 2.0.0 (alpha13, preview) \n \l
+CapivaraOS Pup 2.0.0 (alpha14, preview) \n \l
 
 EOF
 
 cat > %{_sysconfdir}/issue.net << 'EOF'
-CapivaraOS Pup 2.0.0 (alpha13, preview)
+CapivaraOS Pup 2.0.0 (alpha14, preview)
 EOF
 
 for kver in $(ls /lib/modules 2>/dev/null); do
@@ -827,6 +926,21 @@ done
 %{_userunitdir}/capivaraos-update-notify.timer
 
 %changelog
+* Sun Oct 25 2026 CapivaraOS Project <capivaraos-bot@users.noreply.github.com> - 2.0.0-0.14.alpha14
+- Boot com disco CRIPTOGRAFADO (LUKS): o tema Plymouth da capivara nao desenhava
+  o pedido de senha -- com disco cifrado o boot mostrava so o splash e NENHUM
+  campo de senha -> parecia travado (o prompt "Please enter passphrase" so saia
+  em modo texto, via ESC). Adicionado o SetDisplayPasswordFunction, mas com os
+  textos PRE-RENDERIZADOS em PNG (prompt + campo + bolinha): o pedido de senha
+  roda no INITRAMFS, que nao tem libpango/libcairo, entao Image.Text() nao
+  renderiza texto ali -- so imagens aparecem. Enquanto digita, o spinner e a
+  mensagem somem e aparece o campo "Type password to unlock disk" + 1 bolinha por
+  caractere; ao aceitar a senha, o spinner e a mensagem voltam. Splash passou a
+  INGLES (globalizacao da serie 2.x): "Starting/Shutting down CapivaraOS",
+  "Installing updates", "Don't turn off your computer". Paridade com Snout (BUG-45);
+  no Pup e o BUG-46 (o fix anterior com Image.Text nunca chegou a entrar na ISO).
+  Este bump marca o rotulo preview (alpha13 -> alpha14) porque a ISO mudou.
+
 * Sat Oct 24 2026 CapivaraOS Project <capivaraos-bot@users.noreply.github.com> - 2.0.0-0.13.alpha13
 - Instalador (Anaconda WebUI): esconde o bloco "Send us feedback" com QR + link
   FIXO para o Ask Fedora que aparece na tela final. A URL e hardcoded no pacote
