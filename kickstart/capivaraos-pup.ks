@@ -15,8 +15,8 @@
 #   livemedia-creator --ks=/var/tmp/capivaraos-pup-flat.ks \
 #       --no-virt --resultdir=/var/tmp/capivaraos-pup-result \
 #       --project="CapivaraOS Pup" --make-iso --iso-only \
-#       --iso-name=CapivaraOS-Pup-2.0.0-alpha1-x86_64.iso \
-#       --volid="CapivaraOS Pup 2.0.0 alpha1" --variant="CapivaraOS Pup" \
+#       --iso-name=CapivaraOS-Pup-2.0.0-x86_64.iso \
+#       --volid="CapivaraOS Pup 2.0.0" --variant="CapivaraOS Pup" \
 #       --releasever=45
 #
 # NOTA: o anaconda resolve "%include caminho.ks" em relação ao seu próprio
@@ -108,6 +108,15 @@ capivara-central
 # idioma...). Pacote ja assinado, baixado do nosso repositorio pelo build-all.sh
 # para o repo local capivaraos-local.
 cos-config
+
+# ===== UPDATE IN-PLACE (repo assinado + upgrade de versao) =====
+# capivaraos-repos: instala o repositorio de updates assinado (repo.capivaraos.org)
+# + a chave GPG do projeto, habilitando o "atualize sem formatar" via dnf/GNOME
+# Software. capivaraos-upgrade: ferramenta de upgrade de versao (2.x -> ...) com
+# snapshot pre-upgrade. Ambos buildados localmente pelo build-all.sh; o
+# capivaraos-upgrade depende de capivaraos-repos. (FEAT-111, PROD-116/117.)
+capivaraos-repos
+capivaraos-upgrade
 
 # ===== SNAPSHOTS ("atualize sem medo") =====
 # Btrfs é o padrão do instalador; snapper dá os snapshots pré/pós. A config
