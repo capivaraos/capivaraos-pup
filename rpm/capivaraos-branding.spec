@@ -27,13 +27,15 @@ Version:        2.0.0
 # "2.0.0-1.<dist>.pup" fica RESERVADO para o LANCAMENTO PUBLICO conjunto das
 # 3 spins (ver PROD-61). NEVRA 2.0.0-0.1.alpha1 < 2.0.0-1, entao o dnf nunca
 # atualiza "pra tras". Builds de dev saem rotulados "preview".
-Release:        0.14.alpha14%{?dist}.pup
-# Rotulo da pre-release usado no /etc/os-release, /etc/issue e /etc/issue.net
-# ("alphaN"). Fica num macro unico para NAO esquecer de subir junto com o
-# Release (o fastfetch/Sobre leem o os-release; se divergir do nome da ISO, o
-# sistema se reporta com a alpha errada). Ao subir o Release, suba isto tambem.
-%global cos_label alpha14
-Summary:        Identidade visual, wallpapers e branding padrão do CapivaraOS Pup 2.0.0 (preview)
+Release:        1%{?dist}.pup
+# Rotulo de pre-release (alphaN) no os-release/issue/issue.net/VARIANT. As
+# strings abaixo usam a condicional %%{?cos_label}: se o macro cos_label estiver
+# DEFINIDO, viram "Pup 2.0.0 (<valor>, preview)"; se NAO estiver (caso ATUAL,
+# RELEASE ESTAVEL do 2.0), viram "Pup 2.0.0" limpo. O fastfetch/Sobre leem o
+# os-release, entao o rotulo tem que casar com o nome da ISO. Para um build de
+# preview, defina o macro numa linha logo abaixo do Release (FORA de comentario:
+# o rpm processa a diretiva ATE em linha comentada), por ex.: %%global cos_label alphaN
+Summary:        Identidade visual, wallpapers e branding padrão do CapivaraOS Pup 2.0.0%{?cos_label: (preview)}
 
 License:        GPL-3.0-or-later AND LicenseRef-CapivaraOS-Trademark
 URL:            https://capivaraos.org
@@ -57,7 +59,7 @@ Requires:       libnotify
 # qual wallpaper fica ativo via %posttrans/skel, sem remover o pacote.
 
 %description
-Pacote de identidade visual do CapivaraOS Pup 2.0.0 (preview): o conjunto de
+Pacote de identidade visual do CapivaraOS Pup 2.0.0%{?cos_label: (preview)}: o conjunto de
 wallpapers da marca do CapivaraOS 2.x (moonlight/sunset/dev/comics/abstract),
 compartilhado com as demais spins (Marsh e Snout), padrão "Luar" (moonlight);
 conjunto de ícones "capivaraos-logo" e "capivaraos-full-logo", tema Plymouth de
@@ -734,6 +736,22 @@ for FDIR in %{buildroot}%{_sysconfdir}/skel/.config %{buildroot}%{_sysconfdir}/x
     install -m 0644 fastfetch/config.jsonc "$FDIR/fastfetch/config.jsonc"
 done
 
+# ── Hostname da marca: nao deixar o NetworkManager sobrescrever ───────────────
+# O sistema instalado nascia "localhost-live" (nome herdado da sessao live)
+# porque o NetworkManager, no hostname-mode=default, transient, poe o hostname
+# a partir do lease DHCP / do transient quando /etc/hostname (static) esta vazio.
+# E bug do NM, nao do desktop -- vale igual no Xfce. Fix: hostname-mode=none ->
+# o NM nao mexe no hostname, e o capivaraos (de DEFAULT_HOSTNAME no os-release)
+# prevalece. O dir conf.d pertence ao pacote NetworkManager (sempre presente),
+# entao empacotamos so o arquivo, nao o %dir.
+install -d %{buildroot}%{_sysconfdir}/NetworkManager/conf.d
+cat > %{buildroot}%{_sysconfdir}/NetworkManager/conf.d/00-capivaraos-hostname.conf << 'EOF'
+# CapivaraOS: nao deixar o NetworkManager sobrescrever o hostname da marca
+# (capivaraos, de DEFAULT_HOSTNAME no os-release) com o nome do lease DHCP.
+[main]
+hostname-mode=none
+EOF
+
 %post
 # Splash de boot CapivaraOS
 plymouth-set-default-theme capivaraos >/dev/null 2>&1 || true
@@ -812,14 +830,14 @@ systemctl --global enable capivaraos-update-notify.timer >/dev/null 2>&1 || true
 # escritos aqui (em vez de %files) para evitar conflito de arquivo no dnf.
 cat > %{_sysconfdir}/os-release << 'EOF'
 NAME="CapivaraOS"
-VERSION="Pup 2.0.0 (%{cos_label}, preview)"
+VERSION="Pup 2.0.0%{?cos_label: (%{cos_label}, preview)}"
 RELEASE_TYPE=stable
 ID=capivaraos
 ID_LIKE=fedora
 VERSION_ID=45
 VERSION_CODENAME=pup
 PLATFORM_ID="platform:f45"
-PRETTY_NAME="CapivaraOS Pup 2.0.0 (%{cos_label}, preview)"
+PRETTY_NAME="CapivaraOS Pup 2.0.0%{?cos_label: (%{cos_label}, preview)}"
 ANSI_COLOR="0;32"
 LOGO=capivaraos-full-logo
 CPE_NAME="cpe:/o:capivaraos:capivaraos:45"
@@ -832,17 +850,17 @@ REDHAT_BUGZILLA_PRODUCT="Fedora"
 REDHAT_BUGZILLA_PRODUCT_VERSION=45
 REDHAT_SUPPORT_PRODUCT="Fedora"
 REDHAT_SUPPORT_PRODUCT_VERSION=45
-VARIANT="Pup 2.0.0 (%{cos_label}, preview)"
+VARIANT="Pup 2.0.0%{?cos_label: (%{cos_label}, preview)}"
 VARIANT_ID=pup
 EOF
 
 cat > %{_sysconfdir}/issue << 'EOF'
-CapivaraOS Pup 2.0.0 (%{cos_label}, preview) \n \l
+CapivaraOS Pup 2.0.0%{?cos_label: (%{cos_label}, preview)} \n \l
 
 EOF
 
 cat > %{_sysconfdir}/issue.net << 'EOF'
-CapivaraOS Pup 2.0.0 (%{cos_label}, preview)
+CapivaraOS Pup 2.0.0%{?cos_label: (%{cos_label}, preview)}
 EOF
 
 # ── Reaplica os-release apos qualquer atualizacao futura do sistema ────────
@@ -866,14 +884,14 @@ EOF
 grep -q '^NAME="CapivaraOS"' %{_prefix}/lib/os-release 2>/dev/null && exit 0
 cat > %{_sysconfdir}/os-release << 'EOF'
 NAME="CapivaraOS"
-VERSION="Pup 2.0.0 (%{cos_label}, preview)"
+VERSION="Pup 2.0.0%{?cos_label: (%{cos_label}, preview)}"
 RELEASE_TYPE=stable
 ID=capivaraos
 ID_LIKE=fedora
 VERSION_ID=45
 VERSION_CODENAME=pup
 PLATFORM_ID="platform:f45"
-PRETTY_NAME="CapivaraOS Pup 2.0.0 (%{cos_label}, preview)"
+PRETTY_NAME="CapivaraOS Pup 2.0.0%{?cos_label: (%{cos_label}, preview)}"
 ANSI_COLOR="0;32"
 LOGO=capivaraos-full-logo
 CPE_NAME="cpe:/o:capivaraos:capivaraos:45"
@@ -886,17 +904,17 @@ REDHAT_BUGZILLA_PRODUCT="Fedora"
 REDHAT_BUGZILLA_PRODUCT_VERSION=45
 REDHAT_SUPPORT_PRODUCT="Fedora"
 REDHAT_SUPPORT_PRODUCT_VERSION=45
-VARIANT="Pup 2.0.0 (%{cos_label}, preview)"
+VARIANT="Pup 2.0.0%{?cos_label: (%{cos_label}, preview)}"
 VARIANT_ID=pup
 EOF
 
 cat > %{_sysconfdir}/issue << 'EOF'
-CapivaraOS Pup 2.0.0 (%{cos_label}, preview) \n \l
+CapivaraOS Pup 2.0.0%{?cos_label: (%{cos_label}, preview)} \n \l
 
 EOF
 
 cat > %{_sysconfdir}/issue.net << 'EOF'
-CapivaraOS Pup 2.0.0 (%{cos_label}, preview)
+CapivaraOS Pup 2.0.0%{?cos_label: (%{cos_label}, preview)}
 EOF
 
 for kver in $(ls /lib/modules 2>/dev/null); do
@@ -916,6 +934,7 @@ done
 %{_sysconfdir}/xdg/autostart/capivaraos-wallpaper.desktop
 %{_sysconfdir}/xdg/xfce4/xinitrc.d/50-capivaraos-wallpaper.sh
 %{_sysconfdir}/anaconda/profile.d/capivaraos.conf
+%{_sysconfdir}/NetworkManager/conf.d/00-capivaraos-hostname.conf
 %dir %{_datadir}/capivaraos
 %{_datadir}/capivaraos/fastfetch/
 %{_sysconfdir}/skel/.config/fastfetch/
@@ -931,6 +950,19 @@ done
 %{_userunitdir}/capivaraos-update-notify.timer
 
 %changelog
+* Tue Nov 04 2026 CapivaraOS Project <capivaraos-bot@users.noreply.github.com> - 2.0.0-1
+- Corte de RELEASE ESTAVEL do 2.0 (PROD-182): os-release/issue/issue.net/VARIANT
+  e Summary/description agora "CapivaraOS Pup 2.0.0" limpo -- o rotulo de
+  preview virou condicional %%{?cos_label} e o macro cos_label foi desativado
+  (sem alphaN). Release 0.14.alpha14 -> 1. (reference osrelease_alpha_label.)
+- Hostname da marca: drop-in /etc/NetworkManager/conf.d/00-capivaraos-hostname.conf
+  com hostname-mode=none. O sistema instalado nascia "localhost-live" porque o
+  NetworkManager sobrescrevia o DEFAULT_HOSTNAME=capivaraos com o reverse-DNS do
+  lease DHCP; com hostname-mode=none o NM nao mexe no hostname. E bug do NM, nao
+  do desktop -- mesmo fix do Marsh/Snout, vale igual no Xfce.
+- capivaraos-repos + capivaraos-upgrade embarcados na ISO (kickstart + build),
+  habilitando o update in-place assinado e o upgrade de versao sem reformatar.
+
 * Sun Oct 25 2026 CapivaraOS Project <capivaraos-bot@users.noreply.github.com> - 2.0.0-0.14.alpha14
 - Boot com disco CRIPTOGRAFADO (LUKS): o tema Plymouth da capivara nao desenhava
   o pedido de senha -- com disco cifrado o boot mostrava so o splash e NENHUM
