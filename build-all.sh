@@ -16,14 +16,16 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR=/var/tmp/capivaraos-pup-repo
 RESULT_DIR=/var/tmp/capivaraos-pup-result
-ISO_NAME=CapivaraOS-Pup-2.0.0-alpha14-x86_64.iso
+ISO_NAME=CapivaraOS-Pup-2.0.0-x86_64.iso
 
 echo "==> 1/4: Instalando dependências (lorax, rpm-build, ImageMagick, git, createrepo_c)..."
 sudo dnf install -y lorax rpm-build ImageMagick git createrepo_c
 
-echo "==> 2/4: Construindo RPMs (capivaraos-branding + capivara-central)..."
+echo "==> 2/4: Construindo RPMs (capivaraos-branding + capivara-central + capivaraos-repos + capivaraos-upgrade)..."
 "$SCRIPT_DIR/rpm/build-rpm.sh"
 "$SCRIPT_DIR/apps/capivara-central/rpm/build-rpm.sh"
+"$SCRIPT_DIR/rpm/build-rpm-repos.sh"
+"$SCRIPT_DIR/rpm/build-rpm-upgrade.sh"
 
 echo "==> 3/4: Criando repositório local em ${REPO_DIR}..."
 # BUG CORRIGIDO (2026-06-25): ~/rpmbuild/RPMS/noarch/ acumula RPMs
@@ -37,7 +39,9 @@ echo "==> 3/4: Criando repositório local em ${REPO_DIR}..."
 sudo rm -rf "$REPO_DIR"
 mkdir -p "$REPO_DIR"
 for SPEC in "$SCRIPT_DIR/rpm/capivaraos-branding.spec" \
-            "$SCRIPT_DIR/apps/capivara-central/rpm/capivara-central.spec"; do
+            "$SCRIPT_DIR/apps/capivara-central/rpm/capivara-central.spec" \
+            "$SCRIPT_DIR/rpm/capivaraos-repos.spec" \
+            "$SCRIPT_DIR/rpm/capivaraos-upgrade.spec"; do
     NEVRA=$(rpmspec -q --qf '%{name}-%{version}-%{release}.%{arch}\n' "$SPEC" | head -1)
     RPM_FILE="$HOME/rpmbuild/RPMS/noarch/${NEVRA}.rpm"
     [ -f "$RPM_FILE" ] || { echo "ERRO: RPM esperado não encontrado: ${RPM_FILE}" >&2; exit 1; }
@@ -91,7 +95,7 @@ sudo livemedia-creator --ks="$FLAT_KS" \
     --logfile="$LIVEMEDIA_LOG" \
     --project="CapivaraOS Pup 2" --make-iso --iso-only \
     --iso-name="$ISO_NAME" \
-    --volid="CapivaraOS Pup 2.0.0 alpha14" --variant="CapivaraOS Pup" \
+    --volid="CapivaraOS Pup 2.0.0" --variant="CapivaraOS Pup" \
     --releasever=45
 
 # ── Trava contra ISO sem os updates do Fedora (BUG-29) ─────────────────────
