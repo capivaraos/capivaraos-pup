@@ -97,7 +97,7 @@ mkdir -p build/pixmaps
     -resize 256x256 build/pixmaps/capivaraos-white.png
 
 # ── 4. Avatar padrão (.face): capivara BRANCA sobre fundo AZUL-MARINHO ────────
-# Decisao do dono (2026-09-23, "de-green"): o avatar do usuario/greeter passa a
+# Decisao da comunidade (2026-09-23, "de-green"): o avatar do usuario/greeter passa a
 # ser a capivara BRANCA sobre navy #1E2F4E (o azul-marinho da logo), igual ao
 # Marsh e ao Snout -- no lugar da capivara marrom sobre branco (vista na tela de
 # bloqueio/greeter LightDM). Exibido em circulo pelo greeter (o quadrado navy
@@ -728,7 +728,7 @@ install -Dm0644 update-notify/capivaraos-update-notify.timer \
 # padrao declarada explicitamente -- senao o fastfetch 2.69 mostra SO o logo)
 # em /etc/skel E /etc/xdg -- este ultimo p/ valer na sessao LIVE
 # (fastfetch le XDG_CONFIG_DIRS=/etc/xdg). Sem auto-run (terminal limpo, decisão
-# do dono): o logo só aparece ao rodar `fastfetch`. Portado do Marsh (FEAT-136).
+# da comunidade): o logo só aparece ao rodar `fastfetch`. Portado do Marsh (FEAT-136).
 install -d %{buildroot}%{_datadir}/capivaraos/fastfetch
 install -m 0644 fastfetch/capivara.txt %{buildroot}%{_datadir}/capivaraos/fastfetch/capivara.txt
 for FDIR in %{buildroot}%{_sysconfdir}/skel/.config %{buildroot}%{_sysconfdir}/xdg; do
@@ -819,7 +819,7 @@ systemctl --global enable capivaraos-update-notify.timer >/dev/null 2>&1 || true
 # ATÉ a série 1.x, gravávamos o nosso PNG por cima dos defaults do Xfce
 # (/usr/share/backgrounds/xfce/xfce-verticals|stripes|teal.png) como rede de
 # segurança contra o fallback do xfdesktop no 1º login. Na série 2.x isso foi
-# REMOVIDO: o dono quer os wallpapers padrão do Xfce disponíveis no seletor
+# REMOVIDO: a comunidade quer os wallpapers padrão do Xfce disponíveis no seletor
 # (pacote f45-backgrounds-xfce entra no %packages), então NÃO os sobrescrevemos. O
 # padrão "Luar" continua garantido pela config de backdrop — /etc/skel
 # (xfce4-desktop.xml, monitor0) + o xinitrc.d 50-capivaraos-wallpaper.sh, que
@@ -1010,7 +1010,7 @@ done
 - Novo wallpaper "rio" (capivaras no rio) passa a ser o papel de parede PADRAO
   do Pup (capivaraos-wp-rio.png), com a logo branca do CapivaraOS. Os wallpapers
   antigos (moonlight, sunset etc.) continuam disponiveis como opcao no seletor.
-  Decisao do dono: este wallpaper e exclusivo do Pup. Os PNGs de wallpaper
+  Decisao da comunidade: este wallpaper e exclusivo do Pup. Os PNGs de wallpaper
   tiveram a metainformacao removida (mogrify -strip) por higiene -- auditoria
   confirmou que nao havia vazamento (sem GPS/autor/conta/host).
   Este bump marca o rotulo preview (alpha9 -> alpha10) porque a ISO mudou.
