@@ -1,0 +1,42 @@
+#!/bin/bash
+# capivaraos-update-notify (PROD-123) — aviso leve de "nova versao" no Xfce.
+#
+# Sem daemon: roda por um timer de usuario (systemd --user). Checa, de forma
+# READ-ONLY, se ha uma nova versao do CapivaraOS e, se houver, mostra UMA
+# notificacao com um botao que abre o atualizador in-place num terminal. E um
+# NO-OP silencioso enquanto a ferramenta capivaraos-upgrade (e o repo assinado
+# do destino) ainda nao estiverem presentes — entao pode embarcar desde ja, sem
+# ferir o guardrail do FEAT-111 (o repo so entra no lancamento).
+set -euo pipefail
+
+# Ferramenta ainda nao instalada (pre-lancamento) -> nada a fazer.
+command -v capivaraos-upgrade >/dev/null 2>&1 || exit 0
+command -v notify-send        >/dev/null 2>&1 || exit 0
+
+# `check` e read-only e NAO precisa de root; exit 0 = ha nova versao (o repo
+# assinado do destino existe e o pre-voo aprova). Qualquer outra saida = nada.
+capivaraos-upgrade check >/dev/null 2>&1 || exit 0
+
+open_updater() {
+    # O fluxo real (download+reboot) pede sudo e confirmacao; abrimos num
+    # terminal para o usuario acompanhar. `run` = download + reboot (confirmado).
+    if command -v xfce4-terminal >/dev/null 2>&1; then
+        setsid xfce4-terminal -x sudo capivaraos-upgrade run >/dev/null 2>&1 &
+    elif command -v xterm >/dev/null 2>&1; then
+        setsid xterm -e sudo capivaraos-upgrade run >/dev/null 2>&1 &
+    fi
+}
+
+# Notificacao com acao (libnotify 0.8: --action imprime o id clicado no stdout;
+# --wait mantem o processo vivo apenas enquanto a notificacao existir).
+ACTION=$(notify-send \
+    --app-name="CapivaraOS" \
+    --icon=capivaraos-logo \
+    --urgency=normal \
+    --action=update="Atualizar agora" \
+    --wait \
+    "Nova versão do CapivaraOS disponível" \
+    "Você pode atualizar sem formatar, mantendo seus dados e programas. Criamos um ponto de restauração (snapshot) antes de aplicar." 2>/dev/null) || exit 0
+
+[ "$ACTION" = "update" ] && open_updater
+exit 0

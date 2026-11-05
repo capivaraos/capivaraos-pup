@@ -23,16 +23,6 @@ mas a **marca é separada da licença do código**.
   `os-release`, ícones) antes de redistribuir — exatamente como este projeto faz
   em relação ao Fedora.
 
-Os arquivos de **identidade visual** (logotipos, ícones, wallpapers de cor sólida
-com a marca) **não** são cobertos pela GPLv3 e não podem ser reutilizados fora do
-projeto. Para usos da marca fora deste escopo, fale com o Projeto CapivaraOS.
-
-## Materiais de terceiros
-
-Os **wallpapers fotográficos** embarcados nesta spin **não** são do projeto: são
-fotografias de capivaras de terceiros, obtidas no Wikimedia Commons sob licenças
-**Creative Commons Atribuição-CompartilhaIgual (CC BY-SA 3.0 e 4.0)**. A autoria
-e a licença de cada foto estão em
-[`backgrounds/CREDITOS.txt`](backgrounds/CREDITOS.txt) e gravadas na própria
-imagem. Essas fotos seguem a licença CC BY-SA original, **não** a marca do
-CapivaraOS.
+Os arquivos de **identidade visual** (logotipos, ícones, wallpapers da marca)
+**não** são cobertos pela GPLv3 e não podem ser reutilizados fora do projeto.
+Para usos da marca fora deste escopo, fale com o Projeto CapivaraOS.

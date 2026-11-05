@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=COS Dev Center (primeiro boot)
+Name[pt_BR]=COS Dev Center (primeiro boot)
+Comment=Abre a COS Dev Center uma vez, no primeiro login
+Exec=capivara-central --autostart
+Icon=org.capivaraos.Central
+Terminal=false
+OnlyShowIn=XFCE;

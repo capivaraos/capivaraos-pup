@@ -35,6 +35,29 @@ for kver in $(ls /lib/modules); do
     dracut -f --no-hostonly --no-hostonly-cmdline "/boot/initramfs-${kver}.img" "${kver}"
 done
 
+# ── Remove o /etc/kernel/cmdline "fantasma" da imagem live (PROD-133) ───────
+# BLOCKER do 2.0. Este %post roda no BUILD; o instalador live do Fedora (liveimg)
+# COPIA o rootfs da live para o alvo, arrastando junto o /etc/kernel/cmdline que
+# nasce aqui no build — com o UUID de raiz do AMBIENTE DE BUILD (inexistente no
+# disco do usuario) e SEM rootflags=subvol=root (a raiz e btrfs num subvolume).
+# O Anaconda reescreve as entradas BLS do install corretamente (por isso o kernel
+# do install boota), mas NAO corrige esse arquivo. Resultado: o kernel-install usa
+# esse /etc/kernel/cmdline como molde da linha `options` de TODO kernel novo -> o
+# 1o update de kernel gera uma entrada BLS com root inexistente e sem subvol ->
+# nao acha /sbin/init -> dracut emergency mode (root vem locked, sem shell de
+# resgate). Caso real: VM (Boxes) da comunidade, update 7.2.7 -> 7.2.8, 2026-09-28.
+#
+# Fix: eliminamos o arquivo (e a variante /usr/lib/kernel/cmdline, por seguranca).
+# Sem ele, na proxima atualizacao de kernel o kernel-install deriva a cmdline do
+# /proc/cmdline REAL do sistema JA INSTALADO -- que traz root=UUID=<real> ro
+# rootflags=subvol=root rhgb quiet corretos, para qualquer layout (btrfs/LUKS/...).
+# Ordem de precedencia do kernel-install (man kernel-install): /etc/kernel/cmdline,
+# senao /usr/lib/kernel/cmdline, senao /proc/cmdline (sem BOOT_IMAGE=/initrd=).
+# E o comportamento do Fedora live padrao, que nao embarca esse arquivo.
+# VALIDAR sempre num install limpo: instalar em VM -> rodar 1 update de kernel ->
+# conferir a entrada nova (root+rootflags) e o boot. Espelhado do Marsh (commit 0bbc113).
+rm -f /etc/kernel/cmdline /usr/lib/kernel/cmdline
+
 # ── Idioma: pt_BR com fallback para en_US ───────────────────────────────────
 # A diretiva "lang pt_BR.UTF-8" do kickstart já grava LANG=pt_BR.UTF-8 em
 # /etc/locale.conf; adicionamos LANGUAGE para que traduções ausentes em

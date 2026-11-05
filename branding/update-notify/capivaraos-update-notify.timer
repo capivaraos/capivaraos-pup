@@ -1,0 +1,12 @@
+[Unit]
+Description=CapivaraOS: checagem periodica de nova versao (leve)
+Documentation=https://capivaraos.org
+
+[Timer]
+# Uma checagem alguns minutos apos o login e, depois, uma vez por dia.
+OnStartupSec=3min
+OnUnitActiveSec=1d
+Persistent=true
+
+[Install]
+WantedBy=timers.target

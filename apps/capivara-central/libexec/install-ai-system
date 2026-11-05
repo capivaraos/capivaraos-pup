@@ -1,0 +1,29 @@
+#!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Parte privilegiada do pacote de IA local — executado como ROOT via pkexec
+# (polkit action org.capivaraos.central.setup-ai, que mapeia o caminho deste
+# arquivo). NÃO chamar direto; o app usa /usr/libexec/capivara-central/setup-ai.
+#
+# NOTA (Fedora 45): o pacote `ollama` do Fedora passou a PUXAR a pilha ROCm
+# como dependência dura (ollama-rocm, hipblas, rocm-*) — ~2 GB de download e
+# ~6 GB instalados. Não dá mais para ter "só CPU" via dnf (no F44 dava). Isso
+# NÃO cabe na sessão live (falha com "Failed writing to disk"); funciona no
+# sistema instalado em disco. O card avisa o tamanho. Revisar no GA do F45.
+set -uo pipefail
+
+echo ">>> Instalando o Ollama"
+dnf install -y ollama || exit 1
+
+echo ">>> Ativando o serviço do Ollama"
+systemctl enable --now ollama.service || echo "AVISO: não consegui ativar o serviço ollama agora."
+
+echo ">>> Instalando o Alpaca (interface gráfica do Ollama)"
+# Flathub costuma vir do %post da ISO (capivaraos-post-devstation.ks); garantimos
+# o remote aqui também (idempotente) para o card não falhar em silêncio.
+flatpak remote-add --system --if-not-exists flathub \
+    https://flathub.org/repo/flathub.flatpakrepo || true
+flatpak install --system -y --noninteractive flathub com.jeffser.Alpaca \
+    || echo "AVISO: não consegui instalar o Alpaca pelo Flathub agora (verifique a conexão)."
+
+echo ">>> Etapa de administrador concluída"
+exit 0

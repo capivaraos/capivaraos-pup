@@ -1,0 +1,23 @@
+#!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Launcher da COS Dev Center. O código Python fica em
+# /usr/share/capivara-central (instalado pelo RPM).
+#
+# Com --autostart (usado pelo atalho de autostart de 1º boot), a Central só
+# aparece UMA vez: cria um marcador por usuário e, se ele já existir, sai sem
+# abrir. Aberta pelo menu (sem a flag), sempre roda.
+
+if [ "${1:-}" = "--autostart" ]; then
+    shift
+    FLAG="${XDG_STATE_HOME:-$HOME/.local/state}/capivara-central/shown"
+    if [ -e "$FLAG" ]; then
+        exit 0
+    fi
+    mkdir -p "$(dirname "$FLAG")" && : > "$FLAG"
+fi
+
+# IMPORTANTE: usar o interpretador do SISTEMA (/usr/bin/python3), NÃO o "python3"
+# do PATH. O PySide6 (dep do RPM) fica só no Python do sistema; se o usuário
+# instalar uma trilha de Python (mise/pyenv/venv/conda), o "python3" do PATH pode
+# apontar para um Python sem PySide6 e o app fecharia no import (ModuleNotFound).
+exec /usr/bin/python3 /usr/share/capivara-central/capivara-central.py "$@"

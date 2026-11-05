@@ -1,6 +1,6 @@
 #version=DEVEL
 # =============================================================================
-# CapivaraOS Pup - Fedora 44 (Xfce) - kickstart principal
+# CapivaraOS Pup - Fedora 45 (Xfce) - kickstart principal
 # =============================================================================
 #
 # Spin leve do CapivaraOS, baseado no ambiente Xfce oficial do Fedora,
@@ -15,9 +15,9 @@
 #   livemedia-creator --ks=/var/tmp/capivaraos-pup-flat.ks \
 #       --no-virt --resultdir=/var/tmp/capivaraos-pup-result \
 #       --project="CapivaraOS Pup" --make-iso --iso-only \
-#       --iso-name=CapivaraOS-Pup-1.1.8-x86_64.iso \
-#       --volid="CapivaraOS Pup 1.1.8" --variant="CapivaraOS Pup" \
-#       --releasever=44
+#       --iso-name=CapivaraOS-Pup-2.0.0-x86_64.iso \
+#       --volid="CapivaraOS Pup 2.0.0" --variant="CapivaraOS Pup" \
+#       --releasever=45
 #
 # NOTA: o anaconda resolve "%include caminho.ks" em relação ao seu próprio
 # cwd (não ao diretório deste arquivo), por isso o ks-flatten.py acima é
@@ -44,7 +44,8 @@ timezone America/Sao_Paulo --utc
 network --hostname=capivaraos
 
 # NOTA: tamanho do filesystem de trabalho ("part /") definido em
-# upstream/fedora-live-base.ks (8192 = 8 GiB) — não redeclarado aqui para
+# upstream/fedora-live-base.ks (16384 = 16 GiB na série 2.x; era 8 GiB no 1.x e
+# estourou com COS Dev + btrfs-assistant/Qt6) — não redeclarado aqui para
 # evitar duas diretivas "part /" conflitantes no kickstart achatado.
 
 # =============================================================================
@@ -93,6 +94,37 @@ rsync
 # ===== FONTES =====
 liberation-fonts
 dejavu-fonts-all
+
+# ===== WALLPAPERS PADRÃO DO XFCE =====
+# Além dos wallpapers da marca (pacote capivaraos-branding), embarcamos o
+# conjunto padrão do Xfce para o usuário poder escolher no seletor de fundo.
+f45-backgrounds-xfce
+
+# ===== COS DEV CENTER (mínimo) =====
+# App de onboarding do 1o boot (Xfce/GTK), versão enxuta (PROD-122): cards de
+# IA local, ferramentas de dev e GitHub CLI. Vem do repo local desta spin.
+capivara-central
+# -- COS Config Center: central de configuracao (codecs, firewall, discos, rede,
+# idioma...). Pacote ja assinado, baixado do nosso repositorio pelo build-all.sh
+# para o repo local capivaraos-local.
+cos-config
+
+# ===== UPDATE IN-PLACE (repo assinado + upgrade de versao) =====
+# capivaraos-repos: instala o repositorio de updates assinado (repo.capivaraos.org)
+# + a chave GPG do projeto, habilitando o "atualize sem formatar" via dnf/GNOME
+# Software. capivaraos-upgrade: ferramenta de upgrade de versao (2.x -> ...) com
+# snapshot pre-upgrade. Ambos buildados localmente pelo build-all.sh; o
+# capivaraos-upgrade depende de capivaraos-repos. (FEAT-111, PROD-116/117.)
+capivaraos-repos
+capivaraos-upgrade
+
+# ===== SNAPSHOTS ("atualize sem medo") =====
+# Btrfs é o padrão do instalador; snapper dá os snapshots pré/pós. A config
+# "root" do snapper é criada no 1o boot pelo capivaraos-snapper-setup.service
+# (do capivaraos-branding) — sem ela o capivaraos-upgrade não tira snapshot
+# automático antes do upgrade in-place (PROD-121). btrfs-assistant = GUI leve.
+snapper
+btrfs-assistant
 
 %end
 

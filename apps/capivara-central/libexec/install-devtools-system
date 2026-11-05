@@ -1,0 +1,105 @@
+#!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Parte privilegiada do card "Ferramentas de dev" — instala o que exige root
+# (repos de terceiros + dnf). Executado como ROOT via pkexec (polkit action
+# org.capivaraos.central.install-devtools). NÃO chamar direto.
+#
+# Args: subconjunto de {vscodium, vscode, docker}. Qualquer outro valor é
+# ignorado (defesa em profundidade — este script roda como root).
+#
+# As linhas iniciadas por ">>> " viram o rótulo de passo grande no app.
+set -uo pipefail
+
+# Normaliza a seleção recebida, aceitando só os valores conhecidos.
+SELECTED=""
+for t in "$@"; do
+    case "$t" in
+        vscodium|vscode|docker) SELECTED="${SELECTED}${t}"$'\n' ;;
+    esac
+done
+picked() { printf '%s' "$SELECTED" | grep -qx "$1"; }
+
+install_vscodium() {
+    echo ">>> Instalando o VSCodium (editor FOSS, Open VSX)"
+    rpmkeys --import https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/-/raw/master/pub.gpg 2>/dev/null || true
+    cat > /etc/yum.repos.d/vscodium.repo <<'EOF'
+[vscodium]
+name=VSCodium
+baseurl=https://download.vscodium.com/rpms/
+enabled=1
+gpgcheck=1
+repo_gpgcheck=1
+gpgkey=https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/-/raw/master/pub.gpg
+metadata_expire=1h
+EOF
+    dnf install -y codium || { echo "ERRO: falha ao instalar o VSCodium."; return 1; }
+}
+
+install_vscode() {
+    echo ">>> Instalando o Visual Studio Code (repo da Microsoft)"
+    rpm --import https://packages.microsoft.com/keys/microsoft.asc 2>/dev/null || true
+    cat > /etc/yum.repos.d/vscode.repo <<'EOF'
+[code]
+name=Visual Studio Code
+baseurl=https://packages.microsoft.com/yumrepos/vscode
+enabled=1
+autorefresh=1
+type=rpm-md
+gpgcheck=1
+gpgkey=https://packages.microsoft.com/keys/microsoft.asc
+EOF
+    dnf install -y code || { echo "ERRO: falha ao instalar o VS Code."; return 1; }
+}
+
+install_docker() {
+    echo ">>> Instalando o Docker CE (repo oficial do Docker)"
+    # O baseurl padrão do docker-ce.repo usa $releasever, mas o Docker costuma
+    # DEMORAR a publicar pacotes para um Fedora recém-lançado — no F45 Beta o
+    # diretório /linux/fedora/45/ retorna 404. Descobrimos a versão de Fedora
+    # mais recente que o Docker JÁ publicou (os pacotes do F-anterior funcionam
+    # no atual) e fixamos o baseurl nela. Se nenhuma responder, avisamos e
+    # seguimos (não derruba o card — é indisponibilidade upstream, transitória).
+    local fed arch ver="" n
+    fed="$(rpm -E %fedora 2>/dev/null || echo 45)"
+    arch="$(rpm -E %{_arch} 2>/dev/null || echo x86_64)"
+    for n in "$fed" $((fed-1)) $((fed-2)) $((fed-3)); do
+        if curl -fsI --max-time 15 \
+            "https://download.docker.com/linux/fedora/${n}/${arch}/stable/repodata/repomd.xml" \
+            >/dev/null 2>&1; then ver="$n"; break; fi
+    done
+    if [ -z "$ver" ]; then
+        echo "AVISO: o Docker ainda não publicou pacotes para o Fedora ${fed}"
+        echo "       (comum logo após um lançamento do Fedora). Tente de novo mais"
+        echo "       tarde; por ora, use o podman (já incluído). Pulando o Docker."
+        return 0
+    fi
+    [ "$ver" = "$fed" ] || echo "  (Docker ainda sem repo p/ Fedora ${fed}; usando o do Fedora ${ver})"
+    cat > /etc/yum.repos.d/docker-ce.repo <<EOF
+[docker-ce-stable]
+name=Docker CE Stable - Fedora ${ver}
+baseurl=https://download.docker.com/linux/fedora/${ver}/${arch}/stable
+enabled=1
+gpgcheck=1
+gpgkey=https://download.docker.com/linux/fedora/gpg
+EOF
+    dnf install -y docker-ce docker-ce-cli containerd.io \
+                   docker-buildx-plugin docker-compose-plugin \
+        || { echo "ERRO: falha ao instalar o Docker CE."; return 1; }
+    systemctl enable --now docker.service \
+        || echo "AVISO: não consegui ativar o serviço docker agora."
+    # Adiciona quem chamou (via pkexec) ao grupo docker, para usar sem sudo.
+    if [ -n "${PKEXEC_UID:-}" ]; then
+        u="$(getent passwd "$PKEXEC_UID" | cut -d: -f1)"
+        if [ -n "$u" ]; then
+            usermod -aG docker "$u" \
+                && echo "Usuário '$u' adicionado ao grupo 'docker' (saia e entre de novo)."
+        fi
+    fi
+}
+
+rc=0
+picked vscodium && { install_vscodium || rc=1; }
+picked vscode && { install_vscode || rc=1; }
+picked docker && { install_docker || rc=1; }
+echo ">>> Etapa de administrador concluída"
+exit "$rc"
