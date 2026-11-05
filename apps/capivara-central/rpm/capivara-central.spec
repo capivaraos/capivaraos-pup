@@ -83,7 +83,7 @@ install -Dm0644 data/org.capivaraos.Central-autostart.desktop \
 
 %changelog
 * Tue Sep 22 2026 CapivaraOS Bot <capivaraos-bot@users.noreply.github.com> - 0.2.0-7.pup
-- Editor da estação = VSCodium (decisão do dono). O card "Ferramentas de dev"
+- Editor da estação = VSCodium (decisão da comunidade). O card "Ferramentas de dev"
   passa a oferecer VSCodium (FOSS, Open VSX) como editor RECOMENDADO — a IA no
   editor (Cline/Continue) instala limpo nele, sem a verificação de assinatura do
   VS Code. VS Code segue como opção. install-devtools-system ganha install_vscodium

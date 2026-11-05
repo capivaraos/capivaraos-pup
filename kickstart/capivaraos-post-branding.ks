@@ -45,7 +45,7 @@ done
 # esse /etc/kernel/cmdline como molde da linha `options` de TODO kernel novo -> o
 # 1o update de kernel gera uma entrada BLS com root inexistente e sem subvol ->
 # nao acha /sbin/init -> dracut emergency mode (root vem locked, sem shell de
-# resgate). Caso real: VM (Boxes) do dono, update 7.2.7 -> 7.2.8, 2026-09-28.
+# resgate). Caso real: VM (Boxes) da comunidade, update 7.2.7 -> 7.2.8, 2026-09-28.
 #
 # Fix: eliminamos o arquivo (e a variante /usr/lib/kernel/cmdline, por seguranca).
 # Sem ele, na proxima atualizacao de kernel o kernel-install deriva a cmdline do

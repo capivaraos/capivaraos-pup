@@ -33,7 +33,7 @@
 # Pré-req: rpm-sign (rpmsign), createrepo_c, gnupg2; git+rsync p/ `pages`
 # (rclone p/ `upload`). A chave privada precisa estar disponível ao gpg-agent e o
 # %_gpg_name em ~/.rpmmacros (ver keys/README.md). Para o `pages`, o autor do push
-# (capivaraos-bot ou dono) precisa de acesso de escrita ao capivaraos/repo.
+# (capivaraos-bot ou comunidade) precisa de acesso de escrita ao capivaraos/repo.
 # =============================================================================
 set -euo pipefail
 
