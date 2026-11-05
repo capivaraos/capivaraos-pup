@@ -15,8 +15,9 @@
 #
 # HOST DE PRODUÇÃO = GitHub Pages (repo capivaraos/repo, servido em
 # repo.capivaraos.org, card-free). Use o comando `pages` para publicar. O `upload`
-# (rclone/R2) fica como alternativa futura, se a banda crescer — como o baseurl é
-# o nosso domínio (CNAME), dá pra repointar depois sem tocar no pacote.
+# (rclone, p/ object storage) fica como alternativa futura, se a banda crescer —
+# como o baseurl é o nosso domínio (CNAME), dá pra repointar depois sem tocar
+# no pacote.
 #
 # Fluxo recomendado:
 #   build RPM -> add ao TESTING -> QA em VM -> PROMOTE p/ STABLE -> pages (publica)
@@ -28,7 +29,7 @@
 #   ./publish-repo.sh promote --rel 44 --arch x86_64
 #   # 3) publicar a árvore no GitHub Pages (commit+push no capivaraos/repo)
 #   ./publish-repo.sh pages   --rel 44 --arch x86_64
-#   #    (alternativa futura: ./publish-repo.sh upload ... -> object storage/R2)
+#   #    (alternativa futura: ./publish-repo.sh upload ... -> object storage)
 #
 # Pré-req: rpm-sign (rpmsign), createrepo_c, gnupg2; git+rsync p/ `pages`
 # (rclone p/ `upload`). A chave privada precisa estar disponível ao gpg-agent e o
@@ -39,12 +40,11 @@ set -euo pipefail
 
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="${CAPIVARAOS_REPO_ROOT:-${PROJECT_DIR}/out/repo}"   # raiz local do repo
-# Destino de PRODUÇÃO: Cloudflare R2 (egress grátis; ideal p/ repo = muito
-# download, pouco storage). Configure o remote uma vez com:
-#   rclone config   # tipo "s3", provider "Cloudflare", endpoint do R2, chaves
-# e aponte o domínio repo.capivaraos.org para o bucket (custom domain do R2).
-# BOOTSTRAP alternativo (enquanto não há R2): Fedora Copr, grátis, assina/hospeda.
-RCLONE_REMOTE="${CAPIVARAOS_RCLONE_REMOTE:-r2:capivaraos-pup}" # destino do upload (R2)
+# Destino do `upload` (alternativa ao `pages`): object storage compatível com S3.
+# Configure o remote uma vez com `rclone config` e aponte o domínio
+# repo.capivaraos.org para o bucket. BOOTSTRAP alternativo: Fedora Copr, que
+# assina e hospeda.
+RCLONE_REMOTE="${CAPIVARAOS_RCLONE_REMOTE:-objstore:capivaraos-pup}" # destino do upload
 # Repo do GitHub Pages (host de PRODUÇÃO). Override p/ testar num clone/bare local.
 PAGES_REPO="${CAPIVARAOS_PAGES_REPO:-https://github.com/capivaraos/repo.git}"
 GPG_KEY_NAME="${CAPIVARAOS_GPG_NAME:-CapivaraOS (repo signing key)}"
@@ -139,7 +139,7 @@ case "$CMD" in
         # Clona o repo do Pages, sincroniza SÓ esta spin/release/arch (preserva
         # index.html/CNAME/.nojekyll/chave e as outras spins), commita e faz push.
         # Um único commit é atômico -> cliente sempre vê RPMs + repodata coerentes
-        # (não precisa da dança "RPM antes do índice" do R2/CDN).
+        # (não precisa da dança "RPM antes do índice" de object storage com CDN).
         command -v git >/dev/null   || die "git ausente (para o pages)"
         command -v rsync >/dev/null || die "rsync ausente (para o pages)"
         BASE="${REPO_ROOT}/${SPIN}/f${REL}/${ARCH}"
