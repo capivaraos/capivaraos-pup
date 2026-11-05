@@ -21,7 +21,7 @@
 #
 # Depois de gerar: exporte a PÚBLICA para o repo (é o que o pacote
 # capivaraos-repos distribui) e guarde a PRIVADA em HSM/YubiKey ou num cofre
-# (Bitwarden) com passphrase forte. Ver keys/README.md.
+# com passphrase forte. Ver keys/README.md.
 # =============================================================================
 set -euo pipefail
 
@@ -77,7 +77,7 @@ cat <<EOF
 == PRÓXIMOS PASSOS (faça agora, ainda offline) ==
 1. GUARDE a chave privada com segurança e APAGUE o arquivo temporário:
      ${PRIV_OUT}
-   -> importe num HSM/YubiKey OU cole no cofre (Bitwarden) e destrua o arquivo:
+   -> importe num HSM/YubiKey OU cole num cofre de senhas e destrua o arquivo:
         shred -u "${PRIV_OUT}"    # (ou apague com segurança)
 2. Anote o Key ID/fingerprint (publique o fingerprint na página de Segurança):
      gpg --fingerprint ${KEYID}

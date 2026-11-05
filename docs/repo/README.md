@@ -39,13 +39,14 @@ build RPM  ->  add ao TESTING  ->  QA em VM  ->  PROMOTE p/ STABLE  ->  upload
 ```
 Dev/local (sem host): `publish-repo.sh add/promote` gravam em `out/repo/`
 (gitignored); testa-se por `file://` ou `python -m http.server`. Teste "online"
-grátis/sem cartão = **Copr** (bootstrap).
+grátis = **Copr** (bootstrap).
 
 ## Host de produção
-**Cloudflare R2** (egress grátis; barato p/ repo) + CDN, com domínio
-`repo.capivaraos.org`. Ativação **adiada até o lançamento** (R2 pede cartão).
-Como o baseurl aponta pro nosso domínio, o host é repointável depois sem tocar
-no pacote.
+**GitHub Pages** (repo `capivaraos/repo`), servido em `repo.capivaraos.org` — o
+comando `pages` publica aí. Object storage com CDN fica como alternativa futura,
+pelo comando `upload`. Como o baseurl aponta pro nosso domínio, o host é
+repointável depois sem tocar no pacote: a confiança vem da assinatura, não do
+host.
 
 ## GUARDRAILS
 1. **Chave primeiro.** O build do `capivaraos-repos` FALHA sem

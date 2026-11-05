@@ -23,7 +23,7 @@ comunidade/.org (desktop) e servidor/.com (Herd) têm confiança independente.
 Gera RSA 4096/SHA-512 num GNUPGHOME temporário (não suja o seu `~/.gnupg`),
 exporta a **pública** para `keys/RPM-GPG-KEY-capivaraos` (COMMITAR) e a **privada**
 para um arquivo fora do repo. Depois:
-1. Guarde a privada em HSM/YubiKey ou no cofre (Bitwarden) com passphrase forte.
+1. Guarde a privada em HSM/YubiKey ou num cofre de senhas com passphrase forte.
 2. `shred -u` o arquivo privado da máquina.
 3. Publique o **fingerprint** na página de Segurança do site/docs (o usuário confere).
 4. Commite **apenas** `keys/RPM-GPG-KEY-capivaraos`.
