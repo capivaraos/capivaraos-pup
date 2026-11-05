@@ -10,6 +10,11 @@ permissions:
 
 jobs:
   create-jira-ticket:
+    # Guarda de autoria (SEC-18): o evento `issues` roda com os secrets do
+    # repositorio, entao num repo publico uma issue de qualquer pessoa criaria
+    # ticket no Jira. Issue de fora continua sendo aberta normalmente no GitHub;
+    # so nao vira ticket automatico -- a triagem dela passa a ser manual.
+    if: contains(fromJson('["OWNER","MEMBER","COLLABORATOR"]'), github.event.issue.author_association)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
