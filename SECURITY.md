@@ -31,11 +31,11 @@ longer receives fixes.
 Ajuda muito incluir: a versão (`cat /etc/os-release`), o componente afetado, passos
 para reproduzir, o impacto potencial e, se possível, uma prova de conceito.
 
-**O que esperar:** confirmação de recebimento em até **5 dias úteis**; avaliação
-inicial de impacto e, se aplicável, um prazo estimado de correção, comunicado pelo
-mesmo canal do relato. Pedimos que o problema não seja divulgado publicamente até que
-uma correção esteja disponível ou até combinarmos um prazo de **divulgação
-coordenada**.
+**O que esperar:** confirmamos o recebimento assim que possível, avaliamos o impacto
+e, se a falha for confirmada, trabalhamos numa correção e combinamos com você um prazo
+de **divulgação coordenada**, pelo mesmo canal do relato. Por ser um projeto
+comunitário, respondemos em regime de **melhor esforço** — por favor, dê um prazo
+razoável antes de divulgar publicamente.
 
 Não há programa de recompensas (bug bounty).
 
@@ -56,10 +56,10 @@ Não há programa de recompensas (bug bounty).
 Helpful details: the version (`cat /etc/os-release`), the affected component, steps to
 reproduce, potential impact and, if possible, a proof of concept.
 
-**What to expect:** acknowledgement within **5 business days**; an initial impact
-assessment and, where applicable, an estimated fix timeline, sent through the same
-channel used to report. Please do not disclose the issue publicly until a fix is
-available or until we agree on a **coordinated disclosure** date.
+**What to expect:** we acknowledge reports as soon as possible, assess the impact and,
+if confirmed, work on a fix and agree a **coordinated disclosure** date with you,
+through the same channel used to report. As a community project, we respond on a
+**best-effort** basis — please allow a reasonable time before public disclosure.
 
 There is no bug bounty programme.
 
