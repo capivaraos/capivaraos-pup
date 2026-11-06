@@ -1,11 +1,15 @@
-# CapivaraOS Pup — Fedora 44 (Xfce)
+# CapivaraOS Pup — Fedora 45 (Xfce)
 
 Spin leve do **CapivaraOS**, baseada no ambiente **Xfce** oficial do
 Fedora, pensada para computadores com **ao menos 4GB de RAM**. Usa as
 mesmas ferramentas oficiais do projeto Fedora que a spin KDE do
-CapivaraOS Marsh (`../capivaraos-marsh-fedora/`, usada aqui como
+CapivaraOS Marsh (`../capivaraos-marsh/`, usada aqui como
 referência de estrutura): `kickstart` + `livemedia-creator` (lorax) para a
 imagem, e **Anaconda** como instalador.
+
+Este repositório é a **Série 2** (2.0.0), sobre o Fedora 45 (Xfce 4.20). A Série 1,
+baseada no Fedora 44, está congelada em
+[`capivaraos-pup-fedora`](https://github.com/capivaraos/capivaraos-pup-fedora).
 
 ## Estrutura do projeto
 
@@ -64,7 +68,7 @@ personalização do Pup foca em: wallpapers, tela de boot, tela de login,
 > conjunto foi **removido** em favor dos wallpapers da marca compartilhados
 > entre as três spins.
 
-## Pré-requisitos (máquina de build, Fedora 44 x86_64)
+## Pré-requisitos (máquina de build, Fedora 45 x86_64)
 
 ```bash
 sudo dnf install -y lorax rpm-build ImageMagick git createrepo_c
@@ -98,7 +102,7 @@ cd rpm
 ./build-rpm.sh
 ```
 
-Gera `~/rpmbuild/RPMS/noarch/capivaraos-branding-1.1.8-1.*.noarch.rpm`.
+Gera `~/rpmbuild/RPMS/noarch/capivaraos-branding-2.0.0-*.noarch.rpm`.
 
 ### Passo 2 — Disponibilizar o RPM como repositório local
 
@@ -120,19 +124,19 @@ python3 ks-flatten.py capivaraos-pup.ks > /var/tmp/capivaraos-pup-flat.ks
 sudo livemedia-creator --ks=/var/tmp/capivaraos-pup-flat.ks \
     --no-virt --resultdir=/var/tmp/capivaraos-pup-result \
     --project="CapivaraOS Pup" --make-iso --iso-only \
-    --iso-name=CapivaraOS-Pup-1.1.8-x86_64.iso \
-    --volid="CapivaraOS Pup 1.1.8" --variant="CapivaraOS Pup" \
+    --iso-name=CapivaraOS-Pup-2.0.0-x86_64.iso \
+    --volid="CapivaraOS Pup 2.0.0" --variant="CapivaraOS Pup" \
     --releasever=44
 ```
 
 A ISO final fica em
-`/var/tmp/capivaraos-pup-result/CapivaraOS-Pup-1.1.8-x86_64.iso`.
+`/var/tmp/capivaraos-pup-result/CapivaraOS-Pup-2.0.0-x86_64.iso`.
 
 ## Testando a ISO
 
 ```bash
 qemu-system-x86_64 -m 4096 -enable-kvm \
-    -cdrom /var/tmp/capivaraos-pup-result/CapivaraOS-Pup-1.1.8-x86_64.iso
+    -cdrom /var/tmp/capivaraos-pup-result/CapivaraOS-Pup-2.0.0-x86_64.iso
 ```
 
 (`-m 4096` simula o requisito mínimo de 4GB RAM da spin.)
@@ -147,7 +151,7 @@ qemu-system-x86_64 -m 4096 -enable-kvm \
 
 ## Ver também
 
-- `../capivaraos-marsh-fedora/` — spin KDE Plasma do CapivaraOS (tema
+- `../capivaraos-marsh/` — spin KDE Plasma do CapivaraOS (tema
   WhiteSur/macOS), referência de estrutura usada para este projeto.
 - `PACKAGES.md` — racional completo da seleção de pacotes desta spin.
 

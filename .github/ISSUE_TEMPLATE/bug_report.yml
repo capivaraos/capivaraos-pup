@@ -32,7 +32,7 @@ body:
     attributes:
       label: Ambiente de build
       description: Versão do Fedora na máquina de build, arquitetura, versão deste repositório/commit.
-      placeholder: "Fedora 44 x86_64, commit abc1234"
+      placeholder: "Fedora 45 x86_64, commit abc1234"
     validations:
       required: true
   - type: textarea

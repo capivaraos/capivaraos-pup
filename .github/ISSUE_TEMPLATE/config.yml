@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
   - name: Dúvidas e ideias
-    url: https://github.com/capivaraos/capivaraos-pup-fedora/discussions
+    url: https://github.com/capivaraos/capivaraos-pup/discussions
     about: Use as Discussions para perguntas gerais, ideias em aberto e suporte.
   - name: Reportar vulnerabilidade de segurança
-    url: https://github.com/capivaraos/capivaraos-pup-fedora/security/policy
+    url: https://github.com/capivaraos/capivaraos-pup/security/policy
     about: Não abra uma issue pública para vulnerabilidades — siga o processo de divulgação responsável.
