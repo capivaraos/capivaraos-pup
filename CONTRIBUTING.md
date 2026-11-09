@@ -2,7 +2,7 @@
 
 Obrigado pelo interesse em contribuir! Este repositório contém o kickstart,
 os scripts de build e o pacote RPM de branding usados para gerar a ISO do
-**CapivaraOS Pup** (Fedora 44 + Xfce).
+**CapivaraOS Pup** (Fedora 45 + Xfce).
 
 ## Antes de abrir uma issue
 
