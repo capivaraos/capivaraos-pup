@@ -57,6 +57,11 @@ network --hostname=capivaraos
 # Plymouth, fundo do LightDM, os-release, ícones, avatar padrão) em vez do
 # wallpaper genérico do Fedora. Ver rpm/capivaraos-branding.spec.
 capivaraos-branding
+# Wallpapers da marca, separados do branding desde o 2.0.1 (PROD-187).
+# Explicito de proposito: o Requires ja puxaria, mas na instalacao offline quem
+# resolve e o repo local da ISO, e um pacote exigido fora do payload reprova a
+# instalacao inteira.
+capivaraos-wallpapers
 
 # Tema Plymouth do CapivaraOS (capivaraos.script) é um tema "script": precisa
 # do plugin script.so do plymouth para ser renderizado. Sem este pacote,

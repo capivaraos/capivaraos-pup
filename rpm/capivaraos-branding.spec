@@ -15,7 +15,7 @@
 #     sem decoração de terceiros.
 
 Name:           capivaraos-branding
-Version:        2.0.0
+Version:        2.0.1
 # Sufixo ".pup": as tres spins constroem um pacote com este MESMO Name e
 # compartilham ~/rpmbuild, entao sem ele duas spins na mesma Version-Release
 # geram nomes de arquivo identicos -- ja causou dois incidentes (dnf instalou
@@ -50,6 +50,12 @@ Requires:       lightdm-gtk
 # libnotify: notify-send do aviso leve de nova versao (capivaraos-update-notify,
 # PROD-123). O timer/servico de usuario ficam neste pacote.
 Requires:       libnotify
+# Os wallpapers sairam daqui para o capivaraos-wallpapers (PROD-187), que tem
+# Version propria. Esta dependencia NAO e opcional: o DEFAULT_WP acima aponta
+# para /usr/share/backgrounds/capivaraos/, que agora e servido por la. Versao
+# FROUXA de proposito (>=, nao =) -- e o que permite este pacote subir de
+# versao sem arrastar as imagens junto.
+Requires:       capivaraos-wallpapers >= 2.0.0
 
 # NOTA CapivaraOS: NÃO declaramos "Conflicts: desktop-backgrounds-compat"
 # aqui. Esse pacote é Requires obrigatório de xfdesktop e de lightdm-gtk no
@@ -182,18 +188,6 @@ PWFONTOPT=""
 %install
 set -e
 DEFAULT_WP=%{_datadir}/backgrounds/capivaraos/capivaraos-wp-rio.png
-
-# ── Wallpapers da marca 2.x ─────────────────────────────────────────────────
-install -d %{buildroot}%{_datadir}/backgrounds/capivaraos
-# NAO instalamos backgrounds/CapivaraOS_Logo.png: apesar de morar nesta pasta,
-# ela nao e um wallpaper -- e a arte-mestre (1536x1024) da qual os wallpapers
-# sao derivados. Instalada aqui, aparecia no seletor de papel de parede como
-# uma opcao escolhivel e, ao ser aplicada, saia com a logo gigante e cortada
-# pelo painel (visto na Pup 1.1.2 em 2026-07-21).
-for WP in backgrounds/*.png; do
-    [ "$(basename "$WP")" = "CapivaraOS_Logo.png" ] && continue
-    install -m 0644 "$WP" %{buildroot}%{_datadir}/backgrounds/capivaraos/
-done
 
 # ── Pixmaps ──────────────────────────────────────────────────────────────────
 install -d %{buildroot}%{_datadir}/pixmaps
@@ -923,7 +917,6 @@ for kver in $(ls /lib/modules 2>/dev/null); do
 done
 
 %files
-%{_datadir}/backgrounds/capivaraos/
 %{_datadir}/pixmaps/capivaraos.png
 %{_datadir}/pixmaps/capivaraos-logo.png
 %{_datadir}/pixmaps/capivaraos-white.png
@@ -950,6 +943,10 @@ done
 %{_userunitdir}/capivaraos-update-notify.timer
 
 %changelog
+* Mon Nov 09 2026 CapivaraOS <contato@capivaraos.org> - 2.0.1-1.pup
+- Wallpapers movidos para o pacote capivaraos-wallpapers (PROD-187).
+- Nada muda na area de trabalho: mesmos wallpapers, mesmos caminhos, imagens
+  inalteradas. O dnf instala os dois pacotes na mesma transacao.
 * Tue Nov 04 2026 CapivaraOS Project <capivaraos-bot@users.noreply.github.com> - 2.0.0-1
 - Corte de RELEASE ESTAVEL do 2.0 (PROD-182): os-release/issue/issue.net/VARIANT
   e Summary/description agora "CapivaraOS Pup 2.0.0" limpo -- o rotulo de

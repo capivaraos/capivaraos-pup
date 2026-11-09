@@ -38,6 +38,7 @@ done
 # Pares (spec | script de build) dos pacotes próprios do desktop.
 SPECS=(
     "${SCRIPT_DIR}/rpm/capivaraos-branding.spec|${SCRIPT_DIR}/rpm/build-rpm.sh"
+    "${SCRIPT_DIR}/rpm/capivaraos-wallpapers.spec|${SCRIPT_DIR}/rpm/build-rpm-wallpapers.sh"
     "${SCRIPT_DIR}/apps/capivara-central/rpm/capivara-central.spec|${SCRIPT_DIR}/apps/capivara-central/rpm/build-rpm.sh"
     "${SCRIPT_DIR}/rpm/capivaraos-repos.spec|${SCRIPT_DIR}/rpm/build-rpm-repos.sh"
     "${SCRIPT_DIR}/rpm/capivaraos-upgrade.spec|${SCRIPT_DIR}/rpm/build-rpm-upgrade.sh"
