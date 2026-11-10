@@ -50,7 +50,8 @@ capivaraos-upgrade status | log | clean    # atalhos do dnf5 system-upgrade
   publicada** — é o comportamento esperado até o repo de produção existir.
 - Teste da lógica: `tests/test-upgrade.sh` (podman; build+install, guardas,
   falha-fechada, libera com repo local, aborto seguro no download).
-- **Falta p/ Done:** teste cross-release REAL em VM (F45→F46), gated no `pup/f46/`
-  publicado (host adiado). **Item aberto do Pup:** decidir se o Pup 2.x adota
-  snapper+btrfs no layout padrão de instalação (como o Marsh) para o rollback
-  automático valer — senão o upgrade cai no caminho "sem snapshot / faça backup".
+- **Antes de publicar:** o salto cross-release é exercitado em VM, numa
+  instalação real. Nada é anunciado como disponível sem essa prova.
+- **Rollback automático:** depende de **btrfs + snapper** no layout de
+  instalação. Fora desse layout o upgrade segue pelo caminho sem snapshot, e o
+  retorno é por **backup** — não por rollback.
