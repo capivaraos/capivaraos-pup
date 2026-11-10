@@ -1034,7 +1034,7 @@ done
   da live e era arrastado pro alvo pelo liveimg (UUID de raiz do build + sem
   rootflags=subvol=root) -> o 1o update de kernel gerava BLS quebrada -> dracut
   emergency mode. Sem o arquivo, o kernel-install deriva a cmdline do /proc/cmdline
-  REAL do sistema instalado. Ver reference_etc_kernel_cmdline_ghost. FALTA validar
+  REAL do sistema instalado. Ver PROD-133. FALTA validar
   num install limpo em VM (instalar -> 1 update de kernel -> conferir boot).
 
 * Thu Sep 24 2026 CapivaraOS Project <capivaraos-bot@users.noreply.github.com> - 2.0.0-0.6.alpha6
